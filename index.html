@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -371,8 +371,8 @@
         </button>
         <ul class="submenu" id="submenu1" role="menu">
             <li role="menuitem" onclick="showDefaultScreen()" data-active="true" tabindex="0">收 单 登 记</li>
-            <li role="menuitem" onclick="changePage('https://web.wps.cn/wo/sl/v323RrnC?app_id=3emRYl1NtiCvf4FJG9wZ0e', this)" tabindex="0">打单做账登记</li>
-            <li role="menuitem" onclick="changePage('https://web.wps.cn/wo/sl/v32OIb5v?app_id=7ipoVBb5nm7xzBEi2oFqkG', this)" tabindex="0">异常单登记</li>
+            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v12naO01', this)" tabindex="0">打单做账登记</li>
+            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11xPZ9y', this)" tabindex="0">异常单登记</li>
         </ul>
         <button onclick="toggleSubMenu(this, 'submenu2')" id="button2" data-active="false" aria-expanded="false" aria-controls="submenu2">
             <span>数 据 管 理</span>
@@ -380,7 +380,7 @@
         </button>
         <ul class="submenu" id="submenu2" role="menu">
             <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11p8MmT', this)" tabindex="0">收 单 数 据</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v1jOqt2', this)" tabindex="0">代 理 数 据</li>
+            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v121kOPE', this)" tabindex="0">代 理 数 据</li>
             <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11yP7M2', this)" tabindex="0">打单做账数据</li>
             <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v1NM4FF', this)" tabindex="0">异常单数据</li>
         </ul>
@@ -621,6 +621,18 @@
                 domElements.iframe1.style.visibility = 'hidden';
                 domElements.iframe2.style.visibility = 'hidden';
                 
+                // 判断是否是 "打单做账登记" 或 "异常单登记" 页面
+                const isSpecialPage = url.includes('v12na') || url.includes('v11xP');
+                
+                // 动态调整 iframe3-container 的 top 和 iframe3 的高度
+                if (isSpecialPage) {
+                    domElements.iframe3Container.style.top = '32px';
+                    domElements.iframe3.style.height = 'calc(100% - 32px)';
+                } else {
+                    domElements.iframe3Container.style.top = '0';
+                    domElements.iframe3.style.height = '100%';
+                }
+                
                 updateBreadcrumb(button);
             } catch (error) {
                 console.error('页面切换错误:', error);
@@ -680,6 +692,10 @@
             domElements.iframe2.style.visibility = 'visible';
             domElements.iframe3Container.style.visibility = 'hidden';
             domElements.iframe3.src = '';
+            
+            // 重置 iframe3-container 和 iframe3 的样式
+            domElements.iframe3Container.style.top = '0';
+            domElements.iframe3.style.height = '100%';
             
             // 更新状态
             appState.currentPage = 'default';

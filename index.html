@@ -19,6 +19,7 @@
             --transition-time: 0.3s;
             --nav-width: 140px;
             --menu-item-height: 40px;
+            --tab-height: 37px;
         }
         
         body {
@@ -162,6 +163,61 @@
             border-left: 3px solid var(--active-color);
         }
         
+        /* 标签页样式 */
+        .tabs-container {
+            position: fixed;
+            top: 3px;
+            left: calc(var(--nav-width) + 28px);
+            right: 7px;
+            height:var(--tab-height) ;
+            background-color: #fff;
+            border-radius: 7px;
+            display: flex;
+            overflow-x: auto;
+            z-index: 15;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: left var(--transition-time) ease;
+        }
+        
+        .nav[style*="translateX(-100%)"] ~ .tabs-container {
+            left: 0;
+        }
+        
+        .tab {
+            padding: 0 15px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            border-right: 1px solid var(--border-color);
+            cursor: pointer;
+            white-space: nowrap;
+            position: relative;
+            background-color: #f8f8f8;
+            transition: all var(--transition-time) ease;
+             box-sizing: border-box;
+        }
+        
+        .tab:hover {
+            background-color: #eee;
+        }
+        
+        .tab.active {
+            background-color: #fff;
+            font-weight: bold;
+            border-bottom: 2px solid var(--secondary-color);
+        }
+        
+        .tab-close {
+            margin-left: 8px;
+            color: #999;
+            font-size: 12px;
+            transition: color 0.2s ease;
+        }
+        
+        .tab-close:hover {
+            color: #c62828;
+        }
+        
         /* 内容区域 */
         .content {
             display: flex;
@@ -171,8 +227,13 @@
             border-left: 1px solid var(--border-color);
             transition: margin-left var(--transition-time) ease;
             position: relative;
-            height: 100vh;
+            height: calc(100vh - var(--tab-height));
+            top: var(--tab-height);
             overflow: hidden;
+        }
+        
+        .nav[style*="translateX(-100%)"] ~ .content {
+            margin-left: 0;
         }
         
         iframe {
@@ -181,35 +242,50 @@
             padding: 0;
             box-sizing: border-box;
             background-color: #fff;
+            width: 100%;
+            height: 100%;
         }
         
-        #iframe1, #iframe2 {
+        /* 收单登记特殊布局 - 两个并排iframe */
+        .dual-iframe-container {
+            display: flex;
+            width: 100%;
+            height: calc(100% + 32px);
+            margin-top: -32px;
+        }
+        
+        .dual-iframe-container iframe {
             width: 50%;
-            height: 100vh;
-            visibility: visible;
-            transition: visibility var(--transition-time) ease;
+            height: 100%;
         }
         
-        #iframe3-container {
-            position: absolute;
-            top: 0;
-            left: 0;
+        /* 单页iframe容器 */
+        .single-iframe-container {
+            display: none;
             width: 100%;
-            height: 100%;
-            visibility: hidden;
-            z-index: 10;
+            height: calc(100% + 32px);
+            margin-top: -32px;
         }
         
-        #iframe3 {
-            width: 100%;
+        /* 不移动的特殊页面 */
+        .single-iframe-container[data-no-move="true"] {
+            margin-top: 0;
             height: 100%;
+        }
+        
+        .single-iframe-container iframe {
+            height: 100%;
+        }
+        
+        .single-iframe-container.active {
+            display: block;
         }
         
         /* 导航切换按钮 */
         .toggle-nav {
             position: fixed;
             top: 3px;
-            left: calc(var(--nav-width) - 13px);
+            left: calc(var(--nav-width) - 12px);
             font-size: 18px;
             cursor: pointer;
             color: var(--light-text);
@@ -268,47 +344,6 @@
             color: var(--text-color);
         }
         
-        /* 面包屑导航 */
-        .breadcrumb {
-            position: fixed;
-            top: 2px;
-            left: calc(var(--nav-width) + 28px);
-            right: 7px;
-            z-index: 15;
-            background-color: white;
-            padding: 10px 10px;
-            border-radius: 7px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            height: 14px;
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: all var(--transition-time) ease;
-        }
-        
-        /* 导航栏折叠时的面包屑导航 */
-        .nav[style*="translateX(-100%)"] ~ .breadcrumb {
-            left: 7px;
-            right: 7px;
-            padding: 10px 30px;
-        }
-
-        .breadcrumb span {
-            margin: 0 5px;
-            color: var(--secondary-color);
-        }
-        
-        .breadcrumb .separator {
-            margin: 0 8px;
-            color: var(--text-color);
-        }
-        
-        .breadcrumb .current-page {
-            font-weight: bold;
-            color: var(--secondary-dark);
-        }
-        
         /* 错误提示 */
         .error-message {
             position: fixed;
@@ -344,14 +379,21 @@
                 font-size: 14px;
             }
             
-            #iframe1, #iframe2 {
-                width: 100%;
+            .tabs-container {
+                left: calc(var(--nav-width) + 10px) !important;
             }
             
-            .breadcrumb {
-                left: 20px !important;
-                right: 20px !important;
-                font-size: 12px;
+            .nav[style*="translateX(-100%)"] ~ .tabs-container {
+                left: 0 !important;
+            }
+            
+            .dual-iframe-container {
+                flex-direction: column;
+            }
+            
+            .dual-iframe-container iframe {
+                width: 100%;
+                height: 50%;
             }
         }
         
@@ -370,61 +412,58 @@
             <span class="arrow" aria-hidden="true">&#9658;</span>
         </button>
         <ul class="submenu" id="submenu1" role="menu">
-            <li role="menuitem" onclick="showDefaultScreen()" data-active="true" tabindex="0">收 单 登 记</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v12naO01', this)" tabindex="0">打单做账登记</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11xPZ9y', this)" tabindex="0">异常单登记</li>
+            <li role="menuitem" onclick="openDefaultScreen()" data-active="true" tabindex="0">收 单 登 记</li>
+            <li role="menuitem" onclick="openNewTab('打单做账登记', 'https://www.kdocs.cn/wo/sl/v12naO01', this)" tabindex="0">打单做账登记</li>
+            <li role="menuitem" onclick="openNewTab('异常单登记', 'https://www.kdocs.cn/wo/sl/v11xPZ9y', this)" tabindex="0">异常单登记</li>
         </ul>
         <button onclick="toggleSubMenu(this, 'submenu2')" id="button2" data-active="false" aria-expanded="false" aria-controls="submenu2">
             <span>数 据 管 理</span>
             <span class="arrow" aria-hidden="true">&#9658;</span>
         </button>
         <ul class="submenu" id="submenu2" role="menu">
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11p8MmT', this)" tabindex="0">收 单 数 据</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v121kOPE', this)" tabindex="0">代 理 数 据</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11yP7M2', this)" tabindex="0">打单做账数据</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v1NM4FF', this)" tabindex="0">异常单数据</li>
+            <li role="menuitem" onclick="openNewTab('收单数据', 'https://www.kdocs.cn/wo/sl/v11p8MmT', this)" tabindex="0">收 单 数 据</li>
+            <li role="menuitem" onclick="openNewTab('代理数据', 'https://www.kdocs.cn/wo/sl/v121kOPE', this)" tabindex="0">代 理 数 据</li>
+            <li role="menuitem" onclick="openNewTab('打单做账数据', 'https://www.kdocs.cn/wo/sl/v11yP7M2', this)" tabindex="0">打单做账数据</li>
+            <li role="menuitem" onclick="openNewTab('异常单数据', 'https://www.kdocs.cn/wo/sl/v1NM4FF', this)" tabindex="0">异常单数据</li>
         </ul>
         <button onclick="toggleSubMenu(this, 'submenu3')" id="button3" data-active="false" aria-expanded="false" aria-controls="submenu3">
             <span>数 据 分 析</span>
             <span class="arrow" aria-hidden="true">&#9658;</span>
         </button>
         <ul class="submenu" id="submenu3" role="menu">
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v12mnYEt', this)" tabindex="0">数 据 统 计</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v1vFrtB', this)" tabindex="0">数据可视化</li>
+            <li role="menuitem" onclick="openNewTab('数据统计', 'https://www.kdocs.cn/wo/sl/v12mnYEt', this)" tabindex="0">数 据 统 计</li>
+            <li role="menuitem" onclick="openNewTab('数据可视化', 'https://www.kdocs.cn/wo/sl/v1vFrtB', this)" tabindex="0">数据可视化</li>
         </ul>
         <button onclick="toggleSubMenu(this, 'submenu4')" id="button4" data-active="false" aria-expanded="false" aria-controls="submenu4">
             <span>数 据 查 询</span>
             <span class="arrow" aria-hidden="true">&#9658;</span>
         </button>
         <ul class="submenu" id="submenu4" role="menu">
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v12w6mjB', this)" tabindex="0">收单状态查询</li>
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v11MkQ2e', this)" tabindex="0">异常单展示</li>
+            <li role="menuitem" onclick="openNewTab('收单状态查询', 'https://www.kdocs.cn/wo/sl/v12w6mjB', this)" tabindex="0">收单状态查询</li>
+            <li role="menuitem" onclick="openNewTab('异常单展示', 'https://www.kdocs.cn/wo/sl/v11MkQ2e', this)" tabindex="0">异常单展示</li>
         </ul>
         <button onclick="toggleSubMenu(this, 'submenu5')" id="button5" data-active="false" aria-expanded="false" aria-controls="submenu5">
             <span>关 于 系 统</span>
             <span class="arrow" aria-hidden="true">&#9658;</span>
         </button>
         <ul class="submenu" id="submenu5" role="menu">
-            <li role="menuitem" onclick="changePage('https://www.kdocs.cn/wo/sl/v121tHvL', this)" tabindex="0">员工号绑定</li>
-            <li role="menuitem" onclick="changePage('https://account.wps.cn/?accessid=AK20210823OPGONG&qrcode=kdocs&from=v1-web-kdocs-login&cb=https%3A%2F%2Faccount.wps.cn%2Fapi%2Fv3%2Fsession%2Fcorrelate%2Fredirect%3Ft%3D1743409611665%26appid%3D375024576%26cb%3Dhttps%253A%252F%252Fwww.kdocs.cn%252FsingleSign4CST%253Fcb%253Dhttps%25253A%25252F%25252Fwww.kdocs.cn%25252Fl%25252Fcq01Y5LPr8jG%25253FR%25253DL1MvMjQ%25253D&autologin=false', this)" tabindex="0">切 换 账 号</li>
-            <li role="menuitem" onclick="changePage('https://kdocs.cn/l/cqekWkKdKPLM', this)" tabindex="0">系 统 说 明</li>
+            <li role="menuitem" onclick="openNewTab('员工号绑定', 'https://www.kdocs.cn/wo/sl/v121tHvL', this)" tabindex="0">员工号绑定</li>
+            <li role="menuitem" onclick="openNewTab('切换账号', 'https://account.wps.cn/?accessid=AK20210823OPGONG&qrcode=kdocs&from=v1-web-kdocs-login&cb=https%3A%2F%2Faccount.wps.cn%2Fapi%2Fv3%2Fsession%2Fcorrelate%2Fredirect%3Ft%3D1743409611665%26appid%3D375024576%26cb%3Dhttps%253A%252F%252Fwww.kdocs.cn%252FsingleSign4CST%253Fcb%253Dhttps%25253A%25252F%25252Fwww.kdocs.cn%25252Fl%25252Fcq01Y5LPr8jG%25253FR%25253DL1MvMjQ%25253D&autologin=false', this)" tabindex="0">切 换 账 号</li>
+            <li role="menuitem" onclick="openNewTab('系统说明', 'https://kdocs.cn/l/cqekWkKdKPLM', this)" tabindex="0">系 统 说 明</li>
         </ul>
     </div>
     
-    <div class="breadcrumb" id="breadcrumb">
-        <span>智汇单据</span>
-        <span class="separator">></span>
-        <span>数据登记</span>
-        <span class="separator">></span>
-        <span class="current-page">收单登记</span>
+    <div class="tabs-container" id="tabsContainer">
+        <!-- 标签页将在这里动态生成 -->
     </div>
     
     <div class="content" id="content">
-        <iframe id="iframe1" src="https://www.kdocs.cn/wo/sl/v11p8MmT" frameborder="0" title="收单数据" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
-        <iframe id="iframe2" src="https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1" frameborder="0" title="收单登记" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
-        <div id="iframe3-container">
-            <iframe id="iframe3" src="" frameborder="0" title="内容页面" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+        <!-- 默认的收单登记双iframe布局 -->
+        <div class="dual-iframe-container" id="defaultScreen">
+            <iframe id="iframe1" src="https://www.kdocs.cn/wo/sl/v11p8MmT" frameborder="0" title="收单数据" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+            <iframe id="iframe2" src="https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1" frameborder="0" title="收单登记" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
         </div>
+        <!-- 其他单页内容将在这里动态生成 -->
     </div>
     
     <button class="toggle-nav" onclick="toggleNav()" id="toggleNav" aria-label="切换导航栏">&#215;</button>
@@ -437,33 +476,24 @@
     <div class="error-message" id="errorMessage"></div>
     
     <script>
-        // 预加载常用页面
-        const preloadUrls = [
-            'https://web.wps.cn/wo/sl/v323RrnC?app_id=3emRYl1NtiCvf4FJG9wZ0e',
-            'https://www.kdocs.cn/wo/sl/v11p8MmT',
-            'https://www.kdocs.cn/l/cqOBfg5woE11'
-        ];
-        
         // 状态管理
         const appState = {
-            currentPage: 'default',
-            activeMenu: 'submenu1',
+            tabs: [],
+            activeTabId: null,
             navFolded: false,
-            breadcrumb: ['智汇单据', '数据登记', '收单登记']
+            iframeCounter: 0,
+            defaultScreenActive: true
         };
         
         // DOM元素缓存
         const domElements = {
             nav: document.getElementById('nav'),
             content: document.getElementById('content'),
-            iframe1: document.getElementById('iframe1'),
-            iframe2: document.getElementById('iframe2'),
-            iframe3: document.getElementById('iframe3'),
-            iframe3Container: document.getElementById('iframe3-container'),
+            tabsContainer: document.getElementById('tabsContainer'),
             toggleButton: document.getElementById('toggleNav'),
             loading: document.getElementById('loading'),
             errorMessage: document.getElementById('errorMessage'),
-            breadcrumb: document.getElementById('breadcrumb')
+            defaultScreen: document.getElementById('defaultScreen')
         };
         
         // 初始化函数
@@ -477,9 +507,10 @@
                 button.querySelector('.arrow').style.transform = 'rotate(0deg)';
             });
             
-            showDefaultScreen();
+            // 默认打开收单登记页面
+            openDefaultScreen();
+            
             setupEventListeners();
-            preloadResources();
             setupKeyboardNavigation();
         }
         
@@ -493,39 +524,28 @@
             window.addEventListener('error', handleGlobalError);
             
             // iframe加载事件
-            [domElements.iframe1, domElements.iframe2, domElements.iframe3].forEach(iframe => {
-                iframe.addEventListener('load', hideLoading);
-                iframe.addEventListener('error', () => showError(`${iframe.id}加载失败`));
-            });
+            document.getElementById('iframe1').addEventListener('load', hideLoading);
+            document.getElementById('iframe2').addEventListener('load', hideLoading);
         }
         
         // 设置键盘导航
         function setupKeyboardNavigation() {
             document.addEventListener('keydown', (e) => {
-                // ESC键返回默认视图
-                if (e.key === 'Escape' && appState.currentPage !== 'default') {
-                    showDefaultScreen();
+                // Ctrl+数字键切换标签页
+                if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
+                    const index = parseInt(e.key) - 1;
+                    if (index < appState.tabs.length) {
+                        switchTab(appState.tabs[index].id);
+                    }
                 }
                 
-                // Alt+1 切换到数据登记
-                if (e.altKey && e.key === '1') {
-                    document.getElementById('button1').click();
+                // Ctrl+W关闭当前标签页
+                if (e.ctrlKey && e.key.toLowerCase() === 'w') {
+                    if (!appState.defaultScreenActive) {
+                        closeCurrentTab();
+                        e.preventDefault();
+                    }
                 }
-                
-                // Alt+2 切换到数据管理
-                if (e.altKey && e.key === '2') {
-                    document.getElementById('button2').click();
-                }
-            });
-        }
-        
-        // 预加载资源
-        function preloadResources() {
-            preloadUrls.forEach(url => {
-                const link = document.createElement('link');
-                link.rel = 'prefetch';
-                link.href = url;
-                document.head.appendChild(link);
             });
         }
         
@@ -602,140 +622,243 @@
             
             domElements.nav.style.transform = appState.navFolded ? 'translateX(-100%)' : 'translateX(0)';
             domElements.content.style.marginLeft = appState.navFolded ? '0' : 'calc(var(--nav-width) + 20px)';
+            domElements.tabsContainer.style.left = appState.navFolded ? '7px' : 'calc(var(--nav-width) + 28px)';
             
             domElements.toggleButton.innerHTML = appState.navFolded ? '&#9776;' : '&#215;';
-            domElements.toggleButton.style.left = appState.navFolded ? '10px' : 'calc(var(--nav-width) - 20px)';
+            domElements.toggleButton.style.left = appState.navFolded ? '10px' : 'calc(var(--nav-width) - 13px)';
             
             domElements.toggleButton.setAttribute('aria-expanded', !appState.navFolded);
         }
         
-        // 更改页面
-        async function changePage(url, button) {
-            try {
-                showLoading();
-                updateAppState(url, button);
-                updateUIState(button);
-                
-                domElements.iframe3.src = url;
-                domElements.iframe3Container.style.visibility = 'visible';
-                domElements.iframe1.style.visibility = 'hidden';
-                domElements.iframe2.style.visibility = 'hidden';
-                
-                // 判断是否是 "打单做账登记" 或 "异常单登记" 页面
-                const isSpecialPage = url.includes('v12na') || url.includes('v11xP');
-                
-                // 动态调整 iframe3-container 的 top 和 iframe3 的高度
-                if (isSpecialPage) {
-                    domElements.iframe3Container.style.top = '32px';
-                    domElements.iframe3.style.height = 'calc(100% - 32px)';
-                } else {
-                    domElements.iframe3Container.style.top = '0';
-                    domElements.iframe3.style.height = '100%';
+        // 打开默认的收单登记双页面
+        function openDefaultScreen() {
+            // 隐藏所有单页iframe容器
+            document.querySelectorAll('.single-iframe-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // 显示默认的双iframe布局
+            domElements.defaultScreen.style.display = 'flex';
+            appState.defaultScreenActive = true;
+            appState.activeTabId = null;
+            
+            // 更新菜单状态
+            updateMenuItemState(document.querySelector('#submenu1 li'));
+            
+            // 更新标签页状态
+            updateTabsUI();
+        }
+        
+        // 打开新标签页
+        function openNewTab(title, url, menuItem) {
+            // 检查是否已经打开过这个URL的标签页
+            const existingTab = appState.tabs.find(tab => tab.url === url);
+            if (existingTab) {
+                switchTab(existingTab.id);
+                return;
+            }
+            
+            showLoading();
+            
+            // 创建新的标签页
+            const tabId = 'tab-' + (++appState.iframeCounter);
+            const iframeId = 'iframe-' + appState.iframeCounter;
+            
+            const newTab = {
+                id: tabId,
+                title: title,
+                url: url,
+                iframeId: iframeId
+            };
+            
+            appState.tabs.push(newTab);
+            appState.activeTabId = tabId;
+            appState.defaultScreenActive = false;
+            
+            // 创建iframe容器
+            const iframeContainer = document.createElement('div');
+            iframeContainer.className = 'single-iframe-container';
+            iframeContainer.id = 'container-' + iframeId;
+
+            // 为特定页面添加不移属性
+            if (title === '打单做账登记' || title === '异常单登记') {
+                iframeContainer.dataset.noMove = 'true';
+            }
+            
+            // 创建iframe
+            const iframe = document.createElement('iframe');
+            iframe.id = iframeId;
+            iframe.src = url;
+            iframe.title = title;
+            iframe.sandbox = 'allow-same-origin allow-scripts allow-forms';
+            
+            // 确保iframe加载完成后显示内容
+            iframe.onload = function() {
+                hideLoading();
+                // 显示当前iframe容器
+                iframeContainer.style.display = 'block';
+                // 隐藏默认视图
+                domElements.defaultScreen.style.display = 'none';
+                // 隐藏其他iframe容器
+                document.querySelectorAll('.single-iframe-container').forEach(container => {
+                    if (container.id !== iframeContainer.id) {
+                        container.style.display = 'none';
+                    }
+                });
+            };
+            
+            iframe.onerror = function() {
+                hideLoading();
+                showError(`${title}加载失败`);
+            };
+            
+            iframeContainer.appendChild(iframe);
+            domElements.content.appendChild(iframeContainer);
+            
+            // 隐藏默认的双iframe布局
+            domElements.defaultScreen.style.display = 'none';
+            
+            // 显示新的iframe容器
+            iframeContainer.style.display = 'block';
+            
+            // 更新标签栏
+            updateTabsUI();
+            
+            // 更新菜单项状态
+            updateMenuItemState(menuItem);
+        }
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            if (tabId === 'default') {
+                openDefaultScreen();
+                return;
+            }
+            
+            appState.activeTabId = tabId;
+            appState.defaultScreenActive = false;
+            
+            // 隐藏默认的双iframe布局
+            domElements.defaultScreen.style.display = 'none';
+            
+            // 隐藏所有单页iframe容器
+            document.querySelectorAll('.single-iframe-container').forEach(container => {
+                container.style.display = 'none';
+            });
+            
+            // 显示当前标签页的iframe容器
+            const activeTab = appState.tabs.find(tab => tab.id === tabId);
+            if (activeTab) {
+                const iframeContainer = document.getElementById('container-' + activeTab.iframeId);
+                if (iframeContainer) {
+                    iframeContainer.style.display = 'block';
                 }
-                
-                updateBreadcrumb(button);
-            } catch (error) {
-                console.error('页面切换错误:', error);
-                showError('页面加载失败，请重试');
+            }
+            
+            // 更新标签栏UI
+            updateTabsUI();
+        }
+        
+        // 关闭当前标签页
+        function closeCurrentTab() {
+            if (appState.tabs.length <= 0) return;
+            
+            const activeTabIndex = appState.tabs.findIndex(tab => tab.id === appState.activeTabId);
+            const tabToRemove = appState.tabs[activeTabIndex];
+            
+            // 移除iframe容器
+            const iframeContainer = document.getElementById('container-' + tabToRemove.iframeId);
+            if (iframeContainer) {
+                iframeContainer.remove();
+            }
+            
+            // 从状态中移除标签页
+            appState.tabs.splice(activeTabIndex, 1);
+            
+            // 切换到下一个可用的标签页或默认视图
+            if (appState.tabs.length > 0) {
+                let newActiveTabIndex = Math.min(activeTabIndex, appState.tabs.length - 1);
+                appState.activeTabId = appState.tabs[newActiveTabIndex].id;
+                switchTab(appState.activeTabId);
+            } else {
+                openDefaultScreen();
             }
         }
         
-        // 更新应用状态
-        function updateAppState(url, button) {
-            appState.currentPage = url;
-            appState.activeMenu = button.parentElement.id;
+        // 关闭指定标签页
+        function closeTab(tabId, event) {
+            event.stopPropagation(); // 阻止事件冒泡
             
-            const mainMenu = button.parentElement.previousElementSibling.textContent.trim();
-            const subMenu = button.textContent.trim();
-            appState.breadcrumb = ['智汇单据', mainMenu, subMenu];
+            if (tabId === 'default') return; // 不能关闭默认视图
+            
+            const tabIndex = appState.tabs.findIndex(tab => tab.id === tabId);
+            const tabToRemove = appState.tabs[tabIndex];
+            
+            // 移除iframe容器
+            const iframeContainer = document.getElementById('container-' + tabToRemove.iframeId);
+            if (iframeContainer) {
+                iframeContainer.remove();
+            }
+            
+            // 从状态中移除标签页
+            appState.tabs.splice(tabIndex, 1);
+            
+            // 如果关闭的是当前活动标签页，切换到下一个可用的标签页或默认视图
+            if (tabId === appState.activeTabId) {
+                if (appState.tabs.length > 0) {
+                    let newActiveTabIndex = Math.min(tabIndex, appState.tabs.length - 1);
+                    appState.activeTabId = appState.tabs[newActiveTabIndex].id;
+                    switchTab(appState.activeTabId);
+                } else {
+                    openDefaultScreen();
+                }
+            }
+            
+            // 更新UI
+            updateTabsUI();
         }
         
-        // 更新UI状态
-        function updateUIState(button) {
-            // 更新按钮状态
+        // 更新标签栏UI
+        function updateTabsUI() {
+            domElements.tabsContainer.innerHTML = '';
+            
+            // 添加默认视图标签
+            const defaultTab = document.createElement('div');
+            defaultTab.className = `tab ${appState.defaultScreenActive ? 'active' : ''}`;
+            defaultTab.textContent = '收单登记';
+            defaultTab.onclick = () => openDefaultScreen();
+            domElements.tabsContainer.appendChild(defaultTab);
+            
+            // 添加其他标签页
+            appState.tabs.forEach(tab => {
+                const tabElement = document.createElement('div');
+                tabElement.className = `tab ${tab.id === appState.activeTabId ? 'active' : ''}`;
+                tabElement.innerHTML = `
+                    ${tab.title}
+                    <span class="tab-close" onclick="closeTab('${tab.id}', event)">&times;</span>
+                `;
+                tabElement.onclick = () => switchTab(tab.id);
+                
+                domElements.tabsContainer.appendChild(tabElement);
+            });
+        }
+        
+        // 更新菜单项状态
+        function updateMenuItemState(menuItem) {
+            if (!menuItem) return;
+            
+            // 更新主菜单按钮状态
+            const parentButton = menuItem.parentElement.previousElementSibling;
             document.querySelectorAll('.nav button').forEach(btn => {
                 btn.dataset.active = 'false';
-                btn.setAttribute('aria-current', 'false');
             });
-            
-            const parentButton = button.parentElement.previousElementSibling;
             parentButton.dataset.active = 'true';
-            parentButton.setAttribute('aria-current', 'true');
             
-            // 更新子菜单按钮状态
+            // 更新子菜单项状态
             document.querySelectorAll('.submenu li').forEach(item => {
                 item.dataset.active = 'false';
-                item.setAttribute('aria-current', 'false');
             });
-            
-            button.dataset.active = 'true';
-            button.setAttribute('aria-current', 'true');
-        }
-        
-        // 更新面包屑导航
-        function updateBreadcrumb(button) {
-            const mainMenu = button.parentElement.previousElementSibling.textContent.trim();
-            const subMenu = button.textContent.trim();
-            
-            domElements.breadcrumb.innerHTML = `
-                <span>智汇单据</span>
-                <span class="separator">></span>
-                <span>${mainMenu}</span>
-                <span class="separator">></span>
-                <span class="current-page">${subMenu}</span>
-            `;
-        }
-        
-        // 显示默认屏幕
-        function showDefaultScreen() {
-            domElements.iframe1.style.visibility = 'visible';
-            domElements.iframe2.style.visibility = 'visible';
-            domElements.iframe3Container.style.visibility = 'hidden';
-            domElements.iframe3.src = '';
-            
-            // 重置 iframe3-container 和 iframe3 的样式
-            domElements.iframe3Container.style.top = '0';
-            domElements.iframe3.style.height = '100%';
-            
-            // 更新状态
-            appState.currentPage = 'default';
-            appState.activeMenu = 'submenu1';
-            appState.breadcrumb = ['智汇单据', '数据登记', '收单登记'];
-            
-            // 更新UI - 保持第一个按钮激活但不展开子菜单
-            document.querySelectorAll('.nav button').forEach(btn => {
-                btn.dataset.active = 'false';
-                btn.setAttribute('aria-current', 'false');
-                btn.setAttribute('aria-expanded', 'false');
-                btn.querySelector('.arrow').style.transform = 'rotate(0deg)';
-            });
-            
-            const defaultButton = document.getElementById('button1');
-            defaultButton.dataset.active = 'true';
-            defaultButton.setAttribute('aria-current', 'true');
-            
-            // 折叠所有子菜单
-            document.querySelectorAll('.submenu').forEach(menu => {
-                menu.style.display = 'none';
-            });
-            
-            document.querySelectorAll('.submenu li').forEach(item => {
-                item.dataset.active = 'false';
-                item.setAttribute('aria-current', 'false');
-            });
-            
-            const defaultMenuItem = document.querySelector('#submenu1 li');
-            defaultMenuItem.dataset.active = 'true';
-            defaultMenuItem.setAttribute('aria-current', 'true');
-            
-            // 更新面包屑导航
-            domElements.breadcrumb.innerHTML = `
-                <span>智汇单据</span>
-                <span class="separator">></span>
-                <span>数据登记</span>
-                <span class="separator">></span>
-                <span class="current-page">收单登记</span>
-            `;
+            menuItem.dataset.active = 'true';
         }
         
         // 页面加载完成后初始化

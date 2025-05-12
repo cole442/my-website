@@ -166,7 +166,7 @@
         /* 标签页样式 */
         .tabs-container {
             position: fixed;
-            top: 3px;
+            top: 2px;
             left: calc(var(--nav-width) + 28px);
             right: 7px;
             height:var(--tab-height) ;
@@ -252,11 +252,13 @@
             width: 100%;
             height: calc(100% + 32px);
             margin-top: -32px;
+            position: relative;
         }
         
         .dual-iframe-container iframe {
             width: 50%;
             height: 100%;
+            transition: all var(--transition-time) ease;
         }
         
         /* 单页iframe容器 */
@@ -285,7 +287,7 @@
         .toggle-nav {
             position: fixed;
             top: 3px;
-            left: calc(var(--nav-width) - 12px);
+            left: calc(var(--nav-width) - 13px);
             font-size: 18px;
             cursor: pointer;
             color: var(--light-text);
@@ -358,6 +360,33 @@
             display: none;
         }
         
+        /* 切换iframe位置按钮 */
+        .swap-iframes-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .swap-iframes-btn:hover {
+            background-color: var(--secondary-dark);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+        
         /* 响应式设计 */
         @media (max-width: 768px) {
             :root {
@@ -395,6 +424,16 @@
                 width: 100%;
                 height: 50%;
             }
+            
+            .swap-iframes-btn {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%) rotate(90deg);
+            }
+            
+            .swap-iframes-btn:hover {
+                transform: translate(-50%, -50%) rotate(90deg) scale(1.1);
+            }
         }
         
         /* 键盘焦点样式 */
@@ -415,6 +454,7 @@
             <li role="menuitem" onclick="openDefaultScreen()" data-active="true" tabindex="0">收 单 登 记</li>
             <li role="menuitem" onclick="openNewTab('打单做账登记', 'https://www.kdocs.cn/wo/sl/v12naO01', this)" tabindex="0">打单做账登记</li>
             <li role="menuitem" onclick="openNewTab('异常单登记', 'https://www.kdocs.cn/wo/sl/v11xPZ9y', this)" tabindex="0">异常单登记</li>
+            <li role="menuitem" onclick="openNewTab('备  用', 'https://kdocs.cn/l/ckee7mJnjuIW', this)" tabindex="0">   备   用</li>
         </ul>
         <button onclick="toggleSubMenu(this, 'submenu2')" id="button2" data-active="false" aria-expanded="false" aria-controls="submenu2">
             <span>数 据 管 理</span>
@@ -462,6 +502,7 @@
         <div class="dual-iframe-container" id="defaultScreen">
             <iframe id="iframe1" src="https://www.kdocs.cn/wo/sl/v11p8MmT" frameborder="0" title="收单数据" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
             <iframe id="iframe2" src="https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1" frameborder="0" title="收单登记" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
+            <button class="swap-iframes-btn" id="swapIframesBtn" title="切换左右面板位置" onclick="swapIframes()">⇄</button>
         </div>
         <!-- 其他单页内容将在这里动态生成 -->
     </div>
@@ -482,7 +523,8 @@
             activeTabId: null,
             navFolded: false,
             iframeCounter: 0,
-            defaultScreenActive: true
+            defaultScreenActive: true,
+            iframesSwapped: false // 新增状态，记录iframe是否已交换位置
         };
         
         // DOM元素缓存
@@ -493,7 +535,10 @@
             toggleButton: document.getElementById('toggleNav'),
             loading: document.getElementById('loading'),
             errorMessage: document.getElementById('errorMessage'),
-            defaultScreen: document.getElementById('defaultScreen')
+            defaultScreen: document.getElementById('defaultScreen'),
+            swapIframesBtn: document.getElementById('swapIframesBtn'),
+            iframe1: document.getElementById('iframe1'),
+            iframe2: document.getElementById('iframe2')
         };
         
         // 初始化函数
@@ -524,8 +569,8 @@
             window.addEventListener('error', handleGlobalError);
             
             // iframe加载事件
-            document.getElementById('iframe1').addEventListener('load', hideLoading);
-            document.getElementById('iframe2').addEventListener('load', hideLoading);
+            domElements.iframe1.addEventListener('load', hideLoading);
+            domElements.iframe2.addEventListener('load', hideLoading);
         }
         
         // 设置键盘导航
@@ -543,6 +588,14 @@
                 if (e.ctrlKey && e.key.toLowerCase() === 'w') {
                     if (!appState.defaultScreenActive) {
                         closeCurrentTab();
+                        e.preventDefault();
+                    }
+                }
+                
+                // Ctrl+S切换iframe位置
+                if (e.ctrlKey && e.key.toLowerCase() === 's') {
+                    if (appState.defaultScreenActive) {
+                        swapIframes();
                         e.preventDefault();
                     }
                 }
@@ -622,12 +675,25 @@
             
             domElements.nav.style.transform = appState.navFolded ? 'translateX(-100%)' : 'translateX(0)';
             domElements.content.style.marginLeft = appState.navFolded ? '0' : 'calc(var(--nav-width) + 20px)';
-            domElements.tabsContainer.style.left = appState.navFolded ? '7px' : 'calc(var(--nav-width) + 28px)';
+            domElements.tabsContainer.style.left = appState.navFolded ? '0' : 'calc(var(--nav-width) + 20px)';
             
             domElements.toggleButton.innerHTML = appState.navFolded ? '&#9776;' : '&#215;';
-            domElements.toggleButton.style.left = appState.navFolded ? '10px' : 'calc(var(--nav-width) - 13px)';
+            domElements.toggleButton.style.left = appState.navFolded ? '10px' : 'calc(var(--nav-width) - 20px)';
             
             domElements.toggleButton.setAttribute('aria-expanded', !appState.navFolded);
+        }
+        
+        // 交换iframe位置
+        function swapIframes() {
+            appState.iframesSwapped = !appState.iframesSwapped;
+            
+            if (appState.iframesSwapped) {
+                domElements.iframe1.style.order = '2';
+                domElements.iframe2.style.order = '1';
+            } else {
+                domElements.iframe1.style.order = '1';
+                domElements.iframe2.style.order = '2';
+            }
         }
         
         // 打开默认的收单登记双页面
@@ -641,6 +707,11 @@
             domElements.defaultScreen.style.display = 'flex';
             appState.defaultScreenActive = true;
             appState.activeTabId = null;
+            
+            // 重置iframe位置
+            if (appState.iframesSwapped) {
+                swapIframes();
+            }
             
             // 更新菜单状态
             updateMenuItemState(document.querySelector('#submenu1 li'));

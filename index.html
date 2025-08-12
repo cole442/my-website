@@ -2,938 +2,425 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="智汇单据 - 智汇单据">
-    <title>智汇单据</title>
+    <title>智汇单据系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --primary-dark: #1a252f;
-            --secondary-color: #3498db;
-            --secondary-dark: #2980b9;
-            --active-color: #16a085;
-            --text-color: #333;
-            --light-text: #fff;
-            --border-color: #ddd;
-            --loading-bg: rgba(255, 255, 255, 0.9);
-            --transition-time: 0.3s;
-            --nav-width: 140px;
-            --menu-item-height: 40px;
-            --tab-height: 37px;
+        :root{
+            --primary:#1a73e8;
+            --sidebar-width:220px;
+            --sidebar-collapsed:50px;
+            --sidebar-header-height:65px;
+            --header-height:32px;
+            --transition:all .3s ease;
         }
-        
-        body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-            overflow-x: hidden;
-            color: var(--text-color);
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Microsoft YaHei',sans-serif;}
+        body{display:flex;height:100vh;overflow:hidden;background:#f0f4f8;color:#333;}
+
+        /* ===== 侧边栏 ===== */
+        .sidebar{
+            width:var(--sidebar-width);
+            background:linear-gradient(135deg,#1a2a6c,#2c3e50);
+            color:#fff;
+            position:fixed;
+            height:100vh;
+            transition:var(--transition);
+            z-index:100;
+            overflow-y:auto;
         }
-        
-        /* 优化后的导航栏样式 */
-        .nav {
-            display: flex;
-            flex-direction: column;
-            width: var(--nav-width);
-            position: fixed;
-            left: 0;
-            top: 0;
-            height: 100vh;
-            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-            padding: 10px;
-            color: var(--light-text);
-            transition: transform var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 20;
-            box-shadow: 3px 0 10px rgba(0, 0, 0, 0.2);
+        .sidebar.collapsed{width:var(--sidebar-collapsed);}
+        .sidebar-header{
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 10px;height:var(--sidebar-header-height);
+            border-bottom:1px solid rgba(255,255,255,.1);
+            font-size:.85rem;
         }
-        
-        .nav h2 {
-            margin: 0;
-            padding: 15px 0;
-            font-size: 1.1rem;
-            text-align: center;
-            font-weight: bold;
-            color: var(--light-text);
-            letter-spacing: 1px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 10px;
+        .logo{display:flex;align-items:center;gap:6px;font-weight:600;}
+        .toggle-btn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:50%;width:22px;height:22px;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center;font-size:.75rem;}
+        .toggle-btn:hover{background:rgba(255,255,255,.25);}
+        .sidebar-menu{padding:8px 0;}
+        .menu-item{margin-bottom:2px;}
+        .menu-title{padding:8px 12px;display:flex;align-items:center;cursor:pointer;font-size:.9rem;font-weight:500;transition:var(--transition);}
+        .menu-title:hover{background:rgba(255,255,255,.1);}
+        .menu-title i{margin-right:10px;font-size:1rem;width:20px;text-align:center;color:#a0d2ff;}
+        .submenu{background:rgba(0,0,0,.15);display:none;}
+        .submenu.active{display:block;}
+        .submenu-item{padding:6px 12px 6px 42px;cursor:pointer;font-size:.8rem;display:flex;align-items:center;}
+        .submenu-item:hover{background:rgba(255,255,255,.08);}
+        .sidebar.collapsed .logo h2,
+        .sidebar.collapsed .menu-title span,
+        .sidebar.collapsed .submenu{display:none;}
+        .sidebar.collapsed .menu-title{justify-content:center;padding:8px 0;}
+        .sidebar.collapsed .menu-title i{margin-right:0;font-size:1.1rem;}
+
+        /* ===== 主内容区 ===== */
+        .main-content{
+            flex:1;
+            margin-left:var(--sidebar-width);
+            transition:var(--transition);
+            display:flex;
+            flex-direction:column;
+            height:100vh;
         }
-        
-        .nav button {
-            margin: 5px 0;
-            width: 100%;
-            height: var(--menu-item-height);
-            padding: 0 15px;
-            font-size: 14px;
-            border: none;
-            background: linear-gradient(to right, var(--secondary-color), var(--secondary-dark));
-            color: var(--light-text);
-            cursor: pointer;
-            transition: all var(--transition-time) ease;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            position: relative;
-            overflow: hidden;
-            text-align: left;
+        .sidebar.collapsed~.main-content{margin-left:var(--sidebar-collapsed);}
+        .header{
+            height:var(--header-height);
+            background:#fff;
+            box-shadow:0 1px 4px rgba(0,0,0,.05);
+            display:flex;
+            align-items:center;
+            padding:0 12px;
+            flex-shrink:0;
+            font-size:1rem;
+            font-weight:600;
+            display:none;        /* 主页时隐藏 */
         }
-        
-        .nav button:hover, .nav button:focus {
-            transform: translateX(5px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-            background: linear-gradient(to right, var(--secondary-dark), #1a5276);
-            outline: none;
+        /* ---- 标签栏 ---- */
+        .tabs{
+            display:flex;
+            background:#fafbfc;
+            border-bottom:1px solid #e0e6f0;
+            flex-shrink:0;
+            display:none;        /* 主页时隐藏 */
         }
-        
-        .nav button:active {
-            transform: translateX(5px) scale(0.98);
+        .tab{
+            padding:6px 12px;
+            font-size:.8rem;
+            cursor:pointer;
+            display:flex;
+            align-items:center;
+            gap:6px;
+            border-right:1px solid #e0e6f0;
+            white-space:nowrap;
         }
-        
-        .nav button::after {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            height: 100%;
-            width: 3px;
-            background-color: var(--light-text);
-            transform: scaleY(0);
-            transition: transform 0.2s ease;
+        .tab.active{background:#fff;border-bottom:2px solid var(--primary);}
+        .tab-close{color:#999;font-size:.7rem;margin-left:4px;}
+        .tab-close:hover{color:#d93025;}
+        /* ---- 内容区 ---- */
+        .content{
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            overflow:auto;
         }
-        
-        .nav button[data-active="true"] {
-            background: linear-gradient(to right, var(--secondary-dark), #1a5276);
+        .tab-panel{
+            display:none;
+            flex:1;
         }
-        
-        .nav button[data-active="true"]::after {
-            transform: scaleY(1);
+        .tab-panel.active{
+            display:flex;
+            flex-direction:column;
         }
-        
-        .nav button .arrow {
-            transition: transform var(--transition-time) cubic-bezier(0.4, 0, 0.2, 1);
+        /* 统一上移 35px（除特殊页面外） */
+        iframe{
+            flex:1;
+            border:none;
+            margin-top:-35px;
         }
-        
-        .nav button[data-expanded="true"] .arrow {
-            transform: rotate(90deg);
+        iframe[data-nomove]{
+            margin-top:0;
         }
-        
-        .submenu {
-            display: none;
-            margin: 0 0 10px 10px;
-            padding-left: 10px;
-            list-style: none;
-            border-left: 2px dashed rgba(255, 255, 255, 0.1);
-            transition: max-height 0.3s ease, opacity 0.2s ease;
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
+        .split-container{
+            flex:1;
+            display:flex;
+            position:relative;
         }
-        
-        .nav button[aria-expanded="true"] + .submenu {
-            display: block;
-            max-height: 500px;
-            opacity: 1;
+        .split-left,.split-right{
+            flex:1;
+            border:none;
         }
-        
-        .submenu li {
-            margin: 4px 0;
-            padding: 8px 12px;
-            font-size: 13px;
-            background-color: rgba(255, 255, 255, 0.05);
-            color: var(--light-text);
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-            position: relative;
-            width: calc(100% - 5px);
-            box-sizing: border-box;
+        .split-left{
+            border-right:1px solid #e0e6f0;
         }
-        
-        .submenu li:hover, .submenu li:focus {
-            background-color: rgba(255, 255, 255, 0.1);
-            transform: translateX(3px);
-            outline: none;
-        }
-        
-        .submenu li[data-active="true"] {
-            background-color: rgba(22, 160, 133, 0.3);
-            border-left: 3px solid var(--active-color);
-        }
-        
-        /* 标签页样式 */
-        .tabs-container {
-            position: fixed;
-            top: 2px;
-            left: calc(var(--nav-width) + 28px);
-            right: 7px;
-            height:var(--tab-height) ;
-            background-color: #fff;
-            border-radius: 7px;
-            display: flex;
-            overflow-x: auto;
-            z-index: 15;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: left var(--transition-time) ease;
-        }
-        
-        .nav[style*="translateX(-100%)"] ~ .tabs-container {
-            left: 0;
-        }
-        
-        .tab {
-            padding: 0 15px;
-            height: 100%;
-            display: flex;
-            align-items: center;
-            border-right: 1px solid var(--border-color);
-            cursor: pointer;
-            white-space: nowrap;
-            position: relative;
-            background-color: #f8f8f8;
-            transition: all var(--transition-time) ease;
-             box-sizing: border-box;
-        }
-        
-        .tab:hover {
-            background-color: #eee;
-        }
-        
-        .tab.active {
-            background-color: #fff;
-            font-weight: bold;
-            border-bottom: 2px solid var(--secondary-color);
-        }
-        
-        .tab-close {
-            margin-left: 8px;
-            color: #999;
-            font-size: 12px;
-            transition: color 0.2s ease;
-        }
-        
-        .tab-close:hover {
-            color: #c62828;
-        }
-        
-        /* 内容区域 */
-        .content {
-            display: flex;
-            margin-left: calc(var(--nav-width) + 20px);
-            padding: 0;
-            background-color: #fff;
-            border-left: 1px solid var(--border-color);
-            transition: margin-left var(--transition-time) ease;
-            position: relative;
-            height: calc(100vh - var(--tab-height));
-            top: var(--tab-height);
-            overflow: hidden;
-        }
-        
-        .nav[style*="translateX(-100%)"] ~ .content {
-            margin-left: 0;
-        }
-        
-        iframe {
-            border: none;
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            background-color: #fff;
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* 收单登记特殊布局 - 两个并排iframe */
-        .dual-iframe-container {
-            display: flex;
-            width: 100%;
-            height: calc(100% + 32px);
-            margin-top: -32px;
-            position: relative;
-        }
-        
-        .dual-iframe-container iframe {
-            width: 50%;
-            height: 100%;
-            transition: all var(--transition-time) ease;
-        }
-        
-        /* 单页iframe容器 */
-        .single-iframe-container {
-            display: none;
-            width: 100%;
-            height: calc(100% + 32px);
-            margin-top: -32px;
-        }
-        
-        /* 不移动的特殊页面 */
-        .single-iframe-container[data-no-move="true"] {
-            margin-top: 0;
-            height: 100%;
-        }
-        
-        .single-iframe-container iframe {
-            height: 100%;
-        }
-        
-        .single-iframe-container.active {
-            display: block;
-        }
-        
-        /* 导航切换按钮 */
-        .toggle-nav {
-            position: fixed;
-            top: 3px;
-            left: calc(var(--nav-width) - 13px);
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--light-text);
-            background-color: var(--primary-color);
-            border: none;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all var(--transition-time) ease;
-            z-index: 25;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-        
-        .toggle-nav:hover, .toggle-nav:focus {
-            background-color: var(--secondary-dark);
-            outline: none;
-            transform: scale(1.1);
-        }
-        
-        /* 加载指示器 */
-        .loading {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background-color: var(--loading-bg);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 30;
-            visibility: hidden;
-        }
-        
-        .loading-spinner {
-            width: 50px;
-            height: 50px;
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid var(--secondary-color);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-bottom: 15px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            font-size: 18px;
-            color: var(--text-color);
-        }
-        
-        /* 错误提示 */
-        .error-message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: #ffebee;
-            color: #c62828;
-            padding: 10px 15px;
-            border-radius: 4px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 40;
-            display: none;
-        }
-        
-        /* 切换iframe位置按钮 */
-        .swap-iframes-btn {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 10;
-            background-color: var(--secondary-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .swap-iframes-btn:hover {
-            background-color: var(--secondary-dark);
-            transform: translate(-50%, -50%) scale(1.1);
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            :root {
-                --nav-width: 120px;
-                --menu-item-height: 36px;
-            }
-            
-            .nav button {
-                padding: 0 10px;
-                font-size: 12px;
-            }
-            
-            .submenu li {
-                font-size: 11px;
-                padding: 6px 8px;
-            }
-            
-            .nav h2 {
-                font-size: 14px;
-            }
-            
-            .tabs-container {
-                left: calc(var(--nav-width) + 10px) !important;
-            }
-            
-            .nav[style*="translateX(-100%)"] ~ .tabs-container {
-                left: 0 !important;
-            }
-            
-            .dual-iframe-container {
-                flex-direction: column;
-            }
-            
-            .dual-iframe-container iframe {
-                width: 100%;
-                height: 50%;
-            }
-            
-            .swap-iframes-btn {
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(90deg);
-            }
-            
-            .swap-iframes-btn:hover {
-                transform: translate(-50%, -50%) rotate(90deg) scale(1.1);
-            }
-        }
-        
-        /* 键盘焦点样式 */
-        *:focus {
-            outline: 2px solid var(--secondary-color);
-            outline-offset: 2px;
+        .swap-btn{
+            position:absolute;
+            top:4px;
+            left:50%;
+            transform:translateX(-50%);
+            z-index:10;
+            background:var(--primary);
+            color:#fff;
+            border:none;
+            padding:3px 8px;
+            border-radius:3px;
+            cursor:pointer;
+            font-size:11px;
         }
     </style>
 </head>
 <body>
-    <div class="nav" id="nav" role="navigation" aria-label="主导航菜单">
-        <h2>智 汇 单 据</h2>
-        <button onclick="toggleSubMenu(this, 'submenu1')" id="button1" data-active="true" aria-expanded="false" aria-controls="submenu1">
-            <span>数 据 登 记</span>
-            <span class="arrow" aria-hidden="true">&#9658;</span>
-        </button>
-        <ul class="submenu" id="submenu1" role="menu">
-            <li role="menuitem" onclick="openDefaultScreen()" data-active="true" tabindex="0">收 单 登 记</li>
-            <li role="menuitem" onclick="openNewTab('打单做账登记', 'https://www.kdocs.cn/wo/sl/v12naO01', this)" tabindex="0">打单做账登记</li>
-            <li role="menuitem" onclick="openNewTab('异常单登记', 'https://www.kdocs.cn/wo/sl/v11xPZ9y', this)" tabindex="0">异常单登记</li>
-            <li role="menuitem" onclick="openNewTab('备  用', 'https://kdocs.cn/l/ckee7mJnjuIW', this)" tabindex="0">   备   用</li>
-        </ul>
-        <button onclick="toggleSubMenu(this, 'submenu2')" id="button2" data-active="false" aria-expanded="false" aria-controls="submenu2">
-            <span>数 据 管 理</span>
-            <span class="arrow" aria-hidden="true">&#9658;</span>
-        </button>
-        <ul class="submenu" id="submenu2" role="menu">
-            <li role="menuitem" onclick="openNewTab('收单数据', 'https://www.kdocs.cn/wo/sl/v11p8MmT', this)" tabindex="0">收 单 数 据</li>
-            <li role="menuitem" onclick="openNewTab('代理数据', 'https://www.kdocs.cn/wo/sl/v121kOPE', this)" tabindex="0">代 理 数 据</li>
-            <li role="menuitem" onclick="openNewTab('打单做账数据', 'https://www.kdocs.cn/wo/sl/v11yP7M2', this)" tabindex="0">打单做账数据</li>
-            <li role="menuitem" onclick="openNewTab('异常单数据', 'https://www.kdocs.cn/wo/sl/v1NM4FF', this)" tabindex="0">异常单数据</li>
-        </ul>
-        <button onclick="toggleSubMenu(this, 'submenu3')" id="button3" data-active="false" aria-expanded="false" aria-controls="submenu3">
-            <span>数 据 分 析</span>
-            <span class="arrow" aria-hidden="true">&#9658;</span>
-        </button>
-        <ul class="submenu" id="submenu3" role="menu">
-            <li role="menuitem" onclick="openNewTab('数据统计', 'https://www.kdocs.cn/wo/sl/v12mnYEt', this)" tabindex="0">数 据 统 计</li>
-            <li role="menuitem" onclick="openNewTab('数据可视化', 'https://www.kdocs.cn/wo/sl/v1vFrtB', this)" tabindex="0">数据可视化</li>
-        </ul>
-        <button onclick="toggleSubMenu(this, 'submenu4')" id="button4" data-active="false" aria-expanded="false" aria-controls="submenu4">
-            <span>数 据 查 询</span>
-            <span class="arrow" aria-hidden="true">&#9658;</span>
-        </button>
-        <ul class="submenu" id="submenu4" role="menu">
-            <li role="menuitem" onclick="openNewTab('收单状态查询', 'https://www.kdocs.cn/wo/sl/v12w6mjB', this)" tabindex="0">收单状态查询</li>
-            <li role="menuitem" onclick="openNewTab('异常单展示', 'https://www.kdocs.cn/wo/sl/v11MkQ2e', this)" tabindex="0">异常单展示</li>
-        </ul>
-        <button onclick="toggleSubMenu(this, 'submenu5')" id="button5" data-active="false" aria-expanded="false" aria-controls="submenu5">
-            <span>关 于 系 统</span>
-            <span class="arrow" aria-hidden="true">&#9658;</span>
-        </button>
-        <ul class="submenu" id="submenu5" role="menu">
-            <li role="menuitem" onclick="openNewTab('员工号绑定', 'https://web.wps.cn/wo/sl/v31Bmr3z?app_id=5IXSM8MjQrYBI9tXidNxyq', this)" tabindex="0">员工号绑定</li>
-            <li role="menuitem" onclick="openNewTab('切换账号', 'https://account.wps.cn/?accessid=AK20210823OPGONG&qrcode=kdocs&from=v1-web-kdocs-login&cb=https%3A%2F%2Faccount.wps.cn%2Fapi%2Fv3%2Fsession%2Fcorrelate%2Fredirect%3Ft%3D1743409611665%26appid%3D375024576%26cb%3Dhttps%253A%252F%252Fwww.kdocs.cn%252FsingleSign4CST%253Fcb%253Dhttps%25253A%25252F%25252Fwww.kdocs.cn%25252Fl%25252Fcq01Y5LPr8jG%25253FR%25253DL1MvMjQ%25253D&autologin=false', this)" tabindex="0">切 换 账 号</li>
-            <li role="menuitem" onclick="openNewTab('系统说明', 'https://kdocs.cn/l/cqekWkKdKPLM', this)" tabindex="0">系 统 说 明</li>
-        </ul>
-    </div>
-    
-    <div class="tabs-container" id="tabsContainer">
-        <!-- 标签页将在这里动态生成 -->
-    </div>
-    
-    <div class="content" id="content">
-        <!-- 默认的收单登记双iframe布局 -->
-        <div class="dual-iframe-container" id="defaultScreen">
-            <iframe id="iframe1" src="https://web.wps.cn/wo/sl/v35yr71?app_id=vn2oy7YHNCiMFaLYlYnWG" frameborder="0" title="收单数据" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
-            <iframe id="iframe2" src="https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1" frameborder="0" title="收单登记" sandbox="allow-same-origin allow-scripts allow-forms"></iframe>
-            <button class="swap-iframes-btn" id="swapIframesBtn" title="切换左右面板位置" onclick="swapIframes()">⇄</button>
+    <!-- 侧边栏 -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo"><i class="fas fa-file-invoice"></i><h2>智汇单据</h2></div>
+            <button class="toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
         </div>
-        <!-- 其他单页内容将在这里动态生成 -->
-    </div>
-    
-    <button class="toggle-nav" onclick="toggleNav()" id="toggleNav" aria-label="切换导航栏">&#215;</button>
-    
-    <div class="loading" id="loading">
-        <div class="loading-spinner" aria-hidden="true"></div>
-        <div class="loading-text">加载中，请稍候...</div>
-    </div>
-    
-    <div class="error-message" id="errorMessage"></div>
-    
-    <script>
-        // 状态管理
-        const appState = {
-            tabs: [],
-            activeTabId: null,
-            navFolded: false,
-            iframeCounter: 0,
-            defaultScreenActive: true,
-            iframesSwapped: false // 新增状态，记录iframe是否已交换位置
-        };
-        
-        // DOM元素缓存
-        const domElements = {
-            nav: document.getElementById('nav'),
-            content: document.getElementById('content'),
-            tabsContainer: document.getElementById('tabsContainer'),
-            toggleButton: document.getElementById('toggleNav'),
-            loading: document.getElementById('loading'),
-            errorMessage: document.getElementById('errorMessage'),
-            defaultScreen: document.getElementById('defaultScreen'),
-            swapIframesBtn: document.getElementById('swapIframesBtn'),
-            iframe1: document.getElementById('iframe1'),
-            iframe2: document.getElementById('iframe2')
-        };
-        
-        // 初始化函数
-        function init() {
-            // 默认折叠所有子菜单
-            document.querySelectorAll('.submenu').forEach(menu => {
-                menu.style.display = 'none';
-            });
-            document.querySelectorAll('.nav button').forEach(button => {
-                button.setAttribute('aria-expanded', 'false');
-                button.querySelector('.arrow').style.transform = 'rotate(0deg)';
-            });
-            
-            // 默认打开收单登记页面
-            openDefaultScreen();
-            
-            setupEventListeners();
-            setupKeyboardNavigation();
-        }
-        
-        // 设置事件监听器
-        function setupEventListeners() {
-            // 导航栏鼠标悬停效果
-            domElements.toggleButton.addEventListener('mouseenter', handleNavHover);
-            domElements.nav.addEventListener('mouseleave', handleNavLeave);
-            
-            // 错误处理
-            window.addEventListener('error', handleGlobalError);
-            
-            // iframe加载事件
-            domElements.iframe1.addEventListener('load', hideLoading);
-            domElements.iframe2.addEventListener('load', hideLoading);
-        }
-        
-        // 设置键盘导航
-        function setupKeyboardNavigation() {
-            document.addEventListener('keydown', (e) => {
-                // Ctrl+数字键切换标签页
-                if (e.ctrlKey && e.key >= '1' && e.key <= '9') {
-                    const index = parseInt(e.key) - 1;
-                    if (index < appState.tabs.length) {
-                        switchTab(appState.tabs[index].id);
-                    }
-                }
-                
-                // Ctrl+W关闭当前标签页
-                if (e.ctrlKey && e.key.toLowerCase() === 'w') {
-                    if (!appState.defaultScreenActive) {
-                        closeCurrentTab();
-                        e.preventDefault();
-                    }
-                }
-                
-                // Ctrl+S切换iframe位置
-                if (e.ctrlKey && e.key.toLowerCase() === 's') {
-                    if (appState.defaultScreenActive) {
-                        swapIframes();
-                        e.preventDefault();
-                    }
-                }
-            });
-        }
-        
-        // 显示加载状态
-        function showLoading() {
-            domElements.loading.style.visibility = 'visible';
-        }
-        
-        // 隐藏加载状态
-        function hideLoading() {
-            domElements.loading.style.visibility = 'hidden';
-        }
-        
-        // 显示错误信息
-        function showError(message) {
-            domElements.errorMessage.textContent = message;
-            domElements.errorMessage.style.display = 'block';
-            setTimeout(() => {
-                domElements.errorMessage.style.display = 'none';
-            }, 5000);
-        }
-        
-        // 全局错误处理
-        function handleGlobalError(event) {
-            console.error('全局错误:', event.error);
-            showError('发生意外错误，请刷新页面');
-        }
-        
-        // 导航栏悬停处理
-        function handleNavHover() {
-            if (appState.navFolded) {
-                domElements.nav.style.transform = 'translateX(0)';
-            }
-        }
-        
-        // 导航栏离开处理
-        function handleNavLeave() {
-            if (appState.navFolded) {
-                domElements.nav.style.transform = 'translateX(-100%)';
-            }
-        }
-        
-        // 切换子菜单
-        function toggleSubMenu(button, submenuId) {
-            const submenu = document.getElementById(submenuId);
-            const isExpanded = button.getAttribute('aria-expanded') === 'true';
-            
-            // 关闭所有其他子菜单
-            document.querySelectorAll('.submenu').forEach(menu => {
-                if (menu.id !== submenuId) {
-                    menu.style.display = 'none';
-                    const btn = menu.previousElementSibling;
-                    btn.setAttribute('aria-expanded', 'false');
-                    btn.querySelector('.arrow').style.transform = 'rotate(0deg)';
-                }
-            });
-            
-            // 切换当前子菜单
-            if (isExpanded) {
-                submenu.style.display = 'none';
-                button.setAttribute('aria-expanded', 'false');
-                button.querySelector('.arrow').style.transform = 'rotate(0deg)';
-            } else {
-                submenu.style.display = 'block';
-                button.setAttribute('aria-expanded', 'true');
-                button.querySelector('.arrow').style.transform = 'rotate(90deg)';
-                submenu.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
-        
-        // 切换导航栏
-        function toggleNav() {
-            appState.navFolded = !appState.navFolded;
-            
-            domElements.nav.style.transform = appState.navFolded ? 'translateX(-100%)' : 'translateX(0)';
-            domElements.content.style.marginLeft = appState.navFolded ? '0' : 'calc(var(--nav-width) + 20px)';
-            domElements.tabsContainer.style.left = appState.navFolded ? '0' : 'calc(var(--nav-width) + 20px)';
-            
-            domElements.toggleButton.innerHTML = appState.navFolded ? '&#9776;' : '&#215;';
-            domElements.toggleButton.style.left = appState.navFolded ? '10px' : 'calc(var(--nav-width) - 20px)';
-            
-            domElements.toggleButton.setAttribute('aria-expanded', !appState.navFolded);
-        }
-        
-        // 交换iframe位置
-        function swapIframes() {
-            appState.iframesSwapped = !appState.iframesSwapped;
-            
-            if (appState.iframesSwapped) {
-                domElements.iframe1.style.order = '2';
-                domElements.iframe2.style.order = '1';
-            } else {
-                domElements.iframe1.style.order = '1';
-                domElements.iframe2.style.order = '2';
-            }
-        }
-        
-        // 打开默认的收单登记双页面
-        function openDefaultScreen() {
-            // 隐藏所有单页iframe容器
-            document.querySelectorAll('.single-iframe-container').forEach(container => {
-                container.style.display = 'none';
-            });
-            
-            // 显示默认的双iframe布局
-            domElements.defaultScreen.style.display = 'flex';
-            appState.defaultScreenActive = true;
-            appState.activeTabId = null;
-            
-            // 重置iframe位置
-            if (appState.iframesSwapped) {
-                swapIframes();
-            }
-            
-            // 更新菜单状态
-            updateMenuItemState(document.querySelector('#submenu1 li'));
-            
-            // 更新标签页状态
-            updateTabsUI();
-        }
-        
-        // 打开新标签页
-        function openNewTab(title, url, menuItem) {
-            // 检查是否已经打开过这个URL的标签页
-            const existingTab = appState.tabs.find(tab => tab.url === url);
-            if (existingTab) {
-                switchTab(existingTab.id);
-                return;
-            }
-            
-            showLoading();
-            
-            // 创建新的标签页
-            const tabId = 'tab-' + (++appState.iframeCounter);
-            const iframeId = 'iframe-' + appState.iframeCounter;
-            
-            const newTab = {
-                id: tabId,
-                title: title,
-                url: url,
-                iframeId: iframeId
-            };
-            
-            appState.tabs.push(newTab);
-            appState.activeTabId = tabId;
-            appState.defaultScreenActive = false;
-            
-            // 创建iframe容器
-            const iframeContainer = document.createElement('div');
-            iframeContainer.className = 'single-iframe-container';
-            iframeContainer.id = 'container-' + iframeId;
+        <div class="sidebar-menu">
+            <div class="menu-item">
+                <div class="menu-title" onclick="goto('home','主页','single','https://www.kdocs.cn/wo/sl/v11tAJZk')">
+                    <i class="fas fa-home"></i><span>主页</span>
+                </div>
+            </div>
 
-            // 为特定页面添加不移属性
-            if (title === '打单做账登记' || title === '异常单登记') {
-                iframeContainer.dataset.noMove = 'true';
-            }
-            
-            // 创建iframe
-            const iframe = document.createElement('iframe');
-            iframe.id = iframeId;
-            iframe.src = url;
-            iframe.title = title;
-            iframe.sandbox = 'allow-same-origin allow-scripts allow-forms';
-            
-            // 确保iframe加载完成后显示内容
-            iframe.onload = function() {
-                hideLoading();
-                // 显示当前iframe容器
-                iframeContainer.style.display = 'block';
-                // 隐藏默认视图
-                domElements.defaultScreen.style.display = 'none';
-                // 隐藏其他iframe容器
-                document.querySelectorAll('.single-iframe-container').forEach(container => {
-                    if (container.id !== iframeContainer.id) {
-                        container.style.display = 'none';
+            <div class="menu-item">
+                <div class="menu-title" onclick="toggleSubmenu('dataReg')">
+                    <i class="fas fa-clipboard-list"></i><span>数据登记</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
+                </div>
+                <div class="submenu" id="dataReg">
+                    <div class="submenu-item" onclick="goto('wz','无纸化收单','single','https://kdocs.cn/l/ckee7mJnjuIW')">无纸化收单</div>
+                    <div class="submenu-item" onclick="goto('sd','收单登记','split','https://www.kdocs.cn/wo/sl/v14dSwGd','https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1')">收单登记</div>
+                    <div class="submenu-item" onclick="goto('dz','打单做账登记','single','https://www.kdocs.cn/wo/sl/v12naO01')">打单做账登记</div>
+                    <div class="submenu-item" onclick="goto('yc','异常单登记','single','https://www.kdocs.cn/wo/sl/v11xPZ9y')">异常单登记</div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-title" onclick="toggleSubmenu('dataManage')">
+                    <i class="fas fa-database"></i><span>数据管理</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
+                </div>
+                <div class="submenu" id="dataManage">
+                    <div class="submenu-item" onclick="goto('sdData','收单数据','single','https://www.kdocs.cn/wo/sl/v11p8MmT')">收单数据</div>
+                    <div class="submenu-item" onclick="goto('agent','代理数据','single','https://www.kdocs.cn/wo/sl/v121kOPE')">代理数据</div>
+                    <div class="submenu-item" onclick="goto('dzData','打单做账数据','single','https://www.kdocs.cn/wo/sl/v11yP7M2')">打单做账数据</div>
+                    <div class="submenu-item" onclick="goto('ycData','异常单数据','single','https://www.kdocs.cn/wo/sl/v1NM4FF')">异常单数据</div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-title" onclick="toggleSubmenu('dataQuery')">
+                    <i class="fas fa-search"></i><span>数据查询</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
+                </div>
+                <div class="submenu" id="dataQuery">
+                    <div class="submenu-item" onclick="goto('sdQuery','收单查询','single','https://www.kdocs.cn/etapps/query/q/rYGEPaM0')">收单查询</div>
+                    <div class="submenu-item" onclick="goto('ycQuery','异常单展示','single','https://www.kdocs.cn/wo/sl/v11MkQ2e')">异常单展示</div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-title" onclick="toggleSubmenu('dataAnalysis')">
+                    <i class="fas fa-chart-line"></i><span>数据分析</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
+                </div>
+                <div class="submenu" id="dataAnalysis">
+                    <div class="submenu-item" onclick="goto('stat','数据统计','single','https://www.kdocs.cn/wo/sl/v12mnYEt')">数据统计</div>
+                    <div class="submenu-item" onclick="goto('viz','数据可视化','single','')">数据可视化</div>
+                </div>
+            </div>
+
+            <div class="menu-item">
+                <div class="menu-title" onclick="toggleSubmenu('aboutSystem')">
+                    <i class="fas fa-info-circle"></i><span>关于系统</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
+                </div>
+                <div class="submenu" id="aboutSystem">
+                    <div class="submenu-item" onclick="goto('bind','员工号绑定','single','https://web.wps.cn/wo/sl/v31Bmr3z?app_id=5IXSM8MjQrYBI9tXidNxyq')">员工号绑定</div>
+                    <div class="submenu-item" onclick="goto('switch','切换账号','single','https://account.wps.cn/?cb=https%3A%2F%2Fdocs.wps.cn%2Fcrossdomain.html%3Faction%3DwebLoginSuccess%26tcb%3Dhttps%253A%252F%252Fwww.kdocs.cn%252Flatest&autologin=false')">切换账号</div>
+                    <div class="submenu-item" onclick="goto('help','系统说明','single','https://kdocs.cn/l/cdeCQXZdMEnf')">系统说明</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容 -->
+    <div class="main-content">
+        <div class="header" id="pageHeader">主页</div>
+        <div class="tabs" id="tabs"></div>
+        <div class="content" id="content">
+            <!-- 主页默认 -->
+            <div class="tab-panel active" id="home">
+                <iframe src="https://www.kdocs.cn/wo/sl/v11tAJZk"></iframe>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const tabsBar = document.getElementById('tabs');
+        const content = document.getElementById('content');
+        const pageHeader = document.getElementById('pageHeader');
+        const specialPages = new Set(['打单做账登记','异常单登记']);
+        let tabCounter = 0;
+
+        toggleBtn.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
+        
+        function toggleSubmenu(id) {
+            document.getElementById(id).classList.toggle('active');
+        }
+
+        // 统一跳转/创建
+        function goto(id, title, type, url1, url2) {
+            // 主页特殊处理
+            if (id === 'home') {
+                // 隐藏标签栏和标题栏
+                tabsBar.style.display = 'none';
+                pageHeader.style.display = 'none';
+                
+                // 移除所有标签页
+                while (tabsBar.firstChild) {
+                    tabsBar.removeChild(tabsBar.firstChild);
+                }
+                
+                // 移除除主页外的所有内容面板
+                const panels = content.querySelectorAll('.tab-panel:not(#home)');
+                panels.forEach(panel => panel.remove());
+                
+                // 显示主页并隐藏其他面板
+                [...content.children].forEach(panel => {
+                    if (panel.id === 'home') {
+                        panel.classList.add('active');
+                        panel.style.display = 'flex';
+                    } else {
+                        panel.classList.remove('active');
+                        panel.style.display = 'none';
                     }
                 });
-            };
-            
-            iframe.onerror = function() {
-                hideLoading();
-                showError(`${title}加载失败`);
-            };
-            
-            iframeContainer.appendChild(iframe);
-            domElements.content.appendChild(iframeContainer);
-            
-            // 隐藏默认的双iframe布局
-            domElements.defaultScreen.style.display = 'none';
-            
-            // 显示新的iframe容器
-            iframeContainer.style.display = 'block';
-            
-            // 更新标签栏
-            updateTabsUI();
-            
-            // 更新菜单项状态
-            updateMenuItemState(menuItem);
-        }
-        
-        // 切换标签页
-        function switchTab(tabId) {
-            if (tabId === 'default') {
-                openDefaultScreen();
                 return;
             }
-            
-            appState.activeTabId = tabId;
-            appState.defaultScreenActive = false;
-            
-            // 隐藏默认的双iframe布局
-            domElements.defaultScreen.style.display = 'none';
-            
-            // 隐藏所有单页iframe容器
-            document.querySelectorAll('.single-iframe-container').forEach(container => {
-                container.style.display = 'none';
-            });
-            
-            // 显示当前标签页的iframe容器
-            const activeTab = appState.tabs.find(tab => tab.id === tabId);
-            if (activeTab) {
-                const iframeContainer = document.getElementById('container-' + activeTab.iframeId);
-                if (iframeContainer) {
-                    iframeContainer.style.display = 'block';
-                }
+
+            // 已存在直接切
+            if (document.getElementById(id)) {
+                activeTab(id);
+                return;
             }
+
+            // 显示标签栏和标题栏
+            tabsBar.style.display = 'flex';
+            pageHeader.style.display = 'flex';
             
-            // 更新标签栏UI
-            updateTabsUI();
-        }
-        
-        // 关闭当前标签页
-        function closeCurrentTab() {
-            if (appState.tabs.length <= 0) return;
-            
-            const activeTabIndex = appState.tabs.findIndex(tab => tab.id === appState.activeTabId);
-            const tabToRemove = appState.tabs[activeTabIndex];
-            
-            // 移除iframe容器
-            const iframeContainer = document.getElementById('container-' + tabToRemove.iframeId);
-            if (iframeContainer) {
-                iframeContainer.remove();
-            }
-            
-            // 从状态中移除标签页
-            appState.tabs.splice(activeTabIndex, 1);
-            
-            // 切换到下一个可用的标签页或默认视图
-            if (appState.tabs.length > 0) {
-                let newActiveTabIndex = Math.min(activeTabIndex, appState.tabs.length - 1);
-                appState.activeTabId = appState.tabs[newActiveTabIndex].id;
-                switchTab(appState.activeTabId);
+            // 创建新标签页
+            if (type === 'split') {
+                addSplitTab(id, title, url1, url2);
             } else {
-                openDefaultScreen();
+                addSingleTab(id, title, url1);
             }
         }
-        
-        // 关闭指定标签页
-        function closeTab(tabId, event) {
-            event.stopPropagation(); // 阻止事件冒泡
+
+        function activeTab(id) {
+            // 更新标签激活状态
+            [...tabsBar.children].forEach(t => {
+                t.classList.toggle('active', t.dataset.id === id);
+            });
             
-            if (tabId === 'default') return; // 不能关闭默认视图
-            
-            const tabIndex = appState.tabs.findIndex(tab => tab.id === tabId);
-            const tabToRemove = appState.tabs[tabIndex];
-            
-            // 移除iframe容器
-            const iframeContainer = document.getElementById('container-' + tabToRemove.iframeId);
-            if (iframeContainer) {
-                iframeContainer.remove();
-            }
-            
-            // 从状态中移除标签页
-            appState.tabs.splice(tabIndex, 1);
-            
-            // 如果关闭的是当前活动标签页，切换到下一个可用的标签页或默认视图
-            if (tabId === appState.activeTabId) {
-                if (appState.tabs.length > 0) {
-                    let newActiveTabIndex = Math.min(tabIndex, appState.tabs.length - 1);
-                    appState.activeTabId = appState.tabs[newActiveTabIndex].id;
-                    switchTab(appState.activeTabId);
+            // 更新面板激活状态
+            [...content.children].forEach(p => {
+                if (p.id === id) {
+                    p.classList.add('active');
+                    p.style.display = 'flex';
                 } else {
-                    openDefaultScreen();
+                    p.classList.remove('active');
+                    p.style.display = 'none';
                 }
+            });
+            
+            // 更新页面标题
+            pageHeader.textContent = document.querySelector(`.tab[data-id="${id}"]`).textContent.replace(/[\n\r]+|[\s]{2,}/g, ' ').trim();
+        }
+
+        function addSingleTab(id, title, url) {
+            // 创建标签
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.dataset.id = id;
+            tab.textContent = title;
+            
+            // 创建关闭按钮
+            const closeIcon = document.createElement('i');
+            closeIcon.className = 'fas fa-times tab-close';
+            closeIcon.onclick = (e) => closeTab(e, id);
+            
+            tab.appendChild(closeIcon);
+            tab.onclick = () => activeTab(id);
+            tabsBar.appendChild(tab);
+            
+            // 创建内容面板
+            const panel = document.createElement('div');
+            panel.className = 'tab-panel';
+            panel.id = id;
+            
+            const iframe = document.createElement('iframe');
+            iframe.src = url;
+            
+            // 特殊页面不需要偏移
+            if (specialPages.has(title)) {
+                iframe.setAttribute('data-nomove', '');
             }
             
-            // 更新UI
-            updateTabsUI();
+            panel.appendChild(iframe);
+            content.appendChild(panel);
+            
+            // 激活新标签
+            activeTab(id);
         }
-        
-        // 更新标签栏UI
-        function updateTabsUI() {
-            domElements.tabsContainer.innerHTML = '';
+
+        function addSplitTab(id, title, leftUrl, rightUrl) {
+            // 创建标签
+            const tab = document.createElement('div');
+            tab.className = 'tab';
+            tab.dataset.id = id;
+            tab.textContent = title;
             
-            // 添加默认视图标签
-            const defaultTab = document.createElement('div');
-            defaultTab.className = `tab ${appState.defaultScreenActive ? 'active' : ''}`;
-            defaultTab.textContent = '收单登记';
-            defaultTab.onclick = () => openDefaultScreen();
-            domElements.tabsContainer.appendChild(defaultTab);
+            // 创建关闭按钮
+            const closeIcon = document.createElement('i');
+            closeIcon.className = 'fas fa-times tab-close';
+            closeIcon.onclick = (e) => closeTab(e, id);
             
-            // 添加其他标签页
-            appState.tabs.forEach(tab => {
-                const tabElement = document.createElement('div');
-                tabElement.className = `tab ${tab.id === appState.activeTabId ? 'active' : ''}`;
-                tabElement.innerHTML = `
-                    ${tab.title}
-                    <span class="tab-close" onclick="closeTab('${tab.id}', event)">&times;</span>
-                `;
-                tabElement.onclick = () => switchTab(tab.id);
-                
-                domElements.tabsContainer.appendChild(tabElement);
-            });
+            tab.appendChild(closeIcon);
+            tab.onclick = () => activeTab(id);
+            tabsBar.appendChild(tab);
+            
+            // 创建内容面板
+            const panel = document.createElement('div');
+            panel.className = 'tab-panel';
+            panel.id = id;
+            
+            panel.innerHTML = `
+                <div class="split-container">
+                    <button class="swap-btn" onclick="swapFrames(this)">切换</button>
+                    <iframe src="${leftUrl}"></iframe>
+                    <iframe src="${rightUrl}"></iframe>
+                </div>
+            `;
+            
+            content.appendChild(panel);
+            
+            // 激活新标签
+            activeTab(id);
         }
-        
-        // 更新菜单项状态
-        function updateMenuItemState(menuItem) {
-            if (!menuItem) return;
+
+        function closeTab(e, id) {
+            e.stopPropagation();
+            const tab = tabsBar.querySelector(`[data-id="${id}"]`);
+            const panel = document.getElementById(id);
             
-            // 更新主菜单按钮状态
-            const parentButton = menuItem.parentElement.previousElementSibling;
-            document.querySelectorAll('.nav button').forEach(btn => {
-                btn.dataset.active = 'false';
-            });
-            parentButton.dataset.active = 'true';
+            if (!tab || !panel) return;
             
-            // 更新子菜单项状态
-            document.querySelectorAll('.submenu li').forEach(item => {
-                item.dataset.active = 'false';
-            });
-            menuItem.dataset.active = 'true';
+            tab.remove();
+            panel.remove();
+            
+            // 无标签时回到主页
+            if (!tabsBar.children.length) {
+                goto('home', '主页', 'single', 'https://www.kdocs.cn/wo/sl/v14128NB');
+            } else {
+                activeTab(tabsBar.children[0].dataset.id);
+            }
         }
-        
-        // 页面加载完成后初始化
-        document.addEventListener('DOMContentLoaded', init);
+
+        function swapFrames(btn) {
+            const container = btn.parentElement;
+            const frames = container.querySelectorAll('iframe');
+            
+            if (frames.length === 2) {
+                const tempSrc = frames[0].src;
+                frames[0].src = frames[1].src;
+                frames[1].src = tempSrc;
+            }
+        }
+
+        // 初始化
+        window.onload = function() {
+            document.getElementById('dataReg').classList.add('active');
+            
+            // 确保主页正确显示
+            document.getElementById('home').style.display = 'flex';
+        };
     </script>
 </body>
 </html>

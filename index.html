@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>智汇单据系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- 引入配置文件 -->
+    <script src="page-config.js"></script>
     <style>
         :root{
             --primary:#1a73e8;
@@ -61,7 +63,7 @@
             flex-direction:column;
             height:100vh;
         }
-        .sidebar.collapsed~.main-content{margin-left:var(--sidebar-collapsed);}
+        .sidebar.collapsed～.main-content{margin-left:var(--sidebar-collapsed);}
         .header{
             height:var(--header-height);
             background:#fff;
@@ -72,15 +74,14 @@
             flex-shrink:0;
             font-size:1rem;
             font-weight:600;
-            display:none;        /* 主页时隐藏 */
+            display:none;
         }
-        /* ---- 标签栏 ---- */
         .tabs{
             display:flex;
             background:#fafbfc;
             border-bottom:1px solid #e0e6f0;
             flex-shrink:0;
-            display:none;        /* 主页时隐藏 */
+            display:none;
         }
         .tab{
             padding:6px 12px;
@@ -95,7 +96,6 @@
         .tab.active{background:#fff;border-bottom:2px solid var(--primary);}
         .tab-close{color:#999;font-size:.7rem;margin-left:4px;}
         .tab-close:hover{color:#d93025;}
-        /* ---- 内容区 ---- */
         .content{
             flex:1;
             display:flex;
@@ -110,7 +110,6 @@
             display:flex;
             flex-direction:column;
         }
-        /* 统一上移 35px（除特殊页面外） */
         iframe{
             flex:1;
             border:none;
@@ -156,7 +155,7 @@
         </div>
         <div class="sidebar-menu">
             <div class="menu-item">
-                <div class="menu-title" onclick="goto('home','主页','single','https://www.kdocs.cn/wo/sl/v11tAJZk')">
+                <div class="menu-title" onclick="goto('home')">
                     <i class="fas fa-home"></i><span>主页</span>
                 </div>
             </div>
@@ -166,10 +165,11 @@
                     <i class="fas fa-clipboard-list"></i><span>数据登记</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
                 </div>
                 <div class="submenu" id="dataReg">
-                    <div class="submenu-item" onclick="goto('wz','无纸化收单','single','https://kdocs.cn/l/ckee7mJnjuIW')">无纸化收单</div>
-                    <div class="submenu-item" onclick="goto('sd','收单登记','split','https://www.kdocs.cn/wo/sl/v14dSwGd','https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1')">收单登记</div>
-                    <div class="submenu-item" onclick="goto('dz','打单做账登记','single','https://www.kdocs.cn/wo/sl/v12naO01')">打单做账登记</div>
-                    <div class="submenu-item" onclick="goto('yc','异常单登记','single','https://www.kdocs.cn/wo/sl/v11xPZ9y')">异常单登记</div>
+                    <div class="submenu-item" onclick="goto('wz')">无纸化收单</div>
+                    <div class="submenu-item" onclick="goto('sd')">收单登记</div>
+                    <div class="submenu-item" onclick="goto('dz')">打单做账登记</div>
+                    <div class="submenu-item" onclick="goto('yc')">异常单登记</div>
+	    <div class="submenu-item" onclick="goto('jd')">交单登记</div>
                 </div>
             </div>
 
@@ -178,10 +178,10 @@
                     <i class="fas fa-database"></i><span>数据管理</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
                 </div>
                 <div class="submenu" id="dataManage">
-                    <div class="submenu-item" onclick="goto('sdData','收单数据','single','https://www.kdocs.cn/wo/sl/v11p8MmT')">收单数据</div>
-                    <div class="submenu-item" onclick="goto('agent','代理数据','single','https://www.kdocs.cn/wo/sl/v121kOPE')">代理数据</div>
-                    <div class="submenu-item" onclick="goto('dzData','打单做账数据','single','https://www.kdocs.cn/wo/sl/v11yP7M2')">打单做账数据</div>
-                    <div class="submenu-item" onclick="goto('ycData','异常单数据','single','https://www.kdocs.cn/wo/sl/v1NM4FF')">异常单数据</div>
+                    <div class="submenu-item" onclick="goto('sdData')">收单数据</div>
+                    <div class="submenu-item" onclick="goto('agent')">代理数据</div>
+                    <div class="submenu-item" onclick="goto('dzData')">打单做账数据</div>
+                    <div class="submenu-item" onclick="goto('ycData')">异常单数据</div>
                 </div>
             </div>
 
@@ -190,8 +190,10 @@
                     <i class="fas fa-search"></i><span>数据查询</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
                 </div>
                 <div class="submenu" id="dataQuery">
-                    <div class="submenu-item" onclick="goto('sdQuery','收单查询','single','https://www.kdocs.cn/etapps/query/q/rYGEPaM0')">收单查询</div>
-                    <div class="submenu-item" onclick="goto('ycQuery','异常单展示','single','https://www.kdocs.cn/wo/sl/v11MkQ2e')">异常单展示</div>
+                    <div class="submenu-item" onclick="goto('sdQuery')">收单查询</div>
+                    <div class="submenu-item" onclick="goto('ycQuery')">异常单展示</div>
+	    <div class="submenu-item" onclick="goto('slQuery')">收单历史数据查询</div>
+	    <div class="submenu-item" onclick="goto('dlQuery')">代理历史数据查询</div>
                 </div>
             </div>
 
@@ -200,8 +202,8 @@
                     <i class="fas fa-chart-line"></i><span>数据分析</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
                 </div>
                 <div class="submenu" id="dataAnalysis">
-                    <div class="submenu-item" onclick="goto('stat','数据统计','single','https://www.kdocs.cn/wo/sl/v12mnYEt')">数据统计</div>
-                    <div class="submenu-item" onclick="goto('viz','数据可视化','single','')">数据可视化</div>
+                    <div class="submenu-item" onclick="goto('stat')">数据统计</div>
+                    <div class="submenu-item" onclick="goto('viz')">数据可视化</div>
                 </div>
             </div>
 
@@ -210,9 +212,9 @@
                     <i class="fas fa-info-circle"></i><span>关于系统</span><i class="fas fa-chevron-down" style="margin-left:auto;font-size:.7rem;"></i>
                 </div>
                 <div class="submenu" id="aboutSystem">
-                    <div class="submenu-item" onclick="goto('bind','员工号绑定','single','https://web.wps.cn/wo/sl/v31Bmr3z?app_id=5IXSM8MjQrYBI9tXidNxyq')">员工号绑定</div>
-                    <div class="submenu-item" onclick="goto('switch','切换账号','single','https://account.wps.cn/?cb=https%3A%2F%2Fdocs.wps.cn%2Fcrossdomain.html%3Faction%3DwebLoginSuccess%26tcb%3Dhttps%253A%252F%252Fwww.kdocs.cn%252Flatest&autologin=false')">切换账号</div>
-                    <div class="submenu-item" onclick="goto('help','系统说明','single','https://kdocs.cn/l/cdeCQXZdMEnf')">系统说明</div>
+                    <div class="submenu-item" onclick="goto('bind')">员工号绑定</div>
+                    <div class="submenu-item" onclick="goto('switch')">切换账号</div>
+                    <div class="submenu-item" onclick="goto('help')">系统说明</div>
                 </div>
             </div>
         </div>
@@ -225,7 +227,7 @@
         <div class="content" id="content">
             <!-- 主页默认 -->
             <div class="tab-panel active" id="home">
-                <iframe src="https://www.kdocs.cn/wo/sl/v11tAJZk"></iframe>
+                <iframe src=""></iframe>
             </div>
         </div>
     </div>
@@ -236,8 +238,6 @@
         const tabsBar = document.getElementById('tabs');
         const content = document.getElementById('content');
         const pageHeader = document.getElementById('pageHeader');
-        const specialPages = new Set(['打单做账登记','异常单登记']);
-        let tabCounter = 0;
 
         toggleBtn.addEventListener('click', () => sidebar.classList.toggle('collapsed'));
         
@@ -245,61 +245,49 @@
             document.getElementById(id).classList.toggle('active');
         }
 
-        // 统一跳转/创建
-        function goto(id, title, type, url1, url2) {
+        function goto(id) {
             // 主页特殊处理
             if (id === 'home') {
-                // 隐藏标签栏和标题栏
                 tabsBar.style.display = 'none';
                 pageHeader.style.display = 'none';
-                
-                // 移除所有标签页
-                while (tabsBar.firstChild) {
-                    tabsBar.removeChild(tabsBar.firstChild);
-                }
-                
-                // 移除除主页外的所有内容面板
+                while (tabsBar.firstChild) tabsBar.removeChild(tabsBar.firstChild);
                 const panels = content.querySelectorAll('.tab-panel:not(#home)');
                 panels.forEach(panel => panel.remove());
-                
-                // 显示主页并隐藏其他面板
                 [...content.children].forEach(panel => {
-                    if (panel.id === 'home') {
-                        panel.classList.add('active');
-                        panel.style.display = 'flex';
-                    } else {
-                        panel.classList.remove('active');
-                        panel.style.display = 'none';
-                    }
+                    panel.style.display = (panel.id === 'home') ? 'flex' : 'none';
+                    panel.classList.toggle('active', panel.id === 'home');
                 });
+                // 设置主页 iframe
+                const homeIframe = document.querySelector('#home iframe');
+                homeIframe.src = PAGE_CONFIG.home.url;
                 return;
             }
 
-            // 已存在直接切
+            const config = PAGE_CONFIG[id];
+            if (!config) {
+                console.error('未找到页面配置:', id);
+                return;
+            }
+
             if (document.getElementById(id)) {
                 activeTab(id);
                 return;
             }
 
-            // 显示标签栏和标题栏
             tabsBar.style.display = 'flex';
             pageHeader.style.display = 'flex';
-            
-            // 创建新标签页
-            if (type === 'split') {
-                addSplitTab(id, title, url1, url2);
+
+            if (config.type === 'split') {
+                addSplitTab(id, config.title, config.url1, config.url2);
             } else {
-                addSingleTab(id, title, url1);
+                addSingleTab(id, config.title, config.url);
             }
         }
 
         function activeTab(id) {
-            // 更新标签激活状态
             [...tabsBar.children].forEach(t => {
                 t.classList.toggle('active', t.dataset.id === id);
             });
-            
-            // 更新面板激活状态
             [...content.children].forEach(p => {
                 if (p.id === id) {
                     p.classList.add('active');
@@ -309,68 +297,55 @@
                     p.style.display = 'none';
                 }
             });
-            
-            // 更新页面标题
-            pageHeader.textContent = document.querySelector(`.tab[data-id="${id}"]`).textContent.replace(/[\n\r]+|[\s]{2,}/g, ' ').trim();
+            const tabText = document.querySelector(`.tab[data-id="${id}"]`).textContent.replace(/[\n\r]+|[\s]{2,}/g, ' ').trim();
+            pageHeader.textContent = tabText;
         }
 
         function addSingleTab(id, title, url) {
-            // 创建标签
             const tab = document.createElement('div');
             tab.className = 'tab';
             tab.dataset.id = id;
             tab.textContent = title;
-            
-            // 创建关闭按钮
+
             const closeIcon = document.createElement('i');
             closeIcon.className = 'fas fa-times tab-close';
             closeIcon.onclick = (e) => closeTab(e, id);
-            
             tab.appendChild(closeIcon);
             tab.onclick = () => activeTab(id);
             tabsBar.appendChild(tab);
-            
-            // 创建内容面板
+
             const panel = document.createElement('div');
             panel.className = 'tab-panel';
             panel.id = id;
-            
+
             const iframe = document.createElement('iframe');
             iframe.src = url;
-            
-            // 特殊页面不需要偏移
-            if (specialPages.has(title)) {
+            if (PAGE_CONFIG[id]?.noMove) {
                 iframe.setAttribute('data-nomove', '');
             }
-            
             panel.appendChild(iframe);
             content.appendChild(panel);
-            
-            // 激活新标签
+
             activeTab(id);
         }
 
         function addSplitTab(id, title, leftUrl, rightUrl) {
-            // 创建标签
             const tab = document.createElement('div');
             tab.className = 'tab';
             tab.dataset.id = id;
             tab.textContent = title;
-            
-            // 创建关闭按钮
+
             const closeIcon = document.createElement('i');
             closeIcon.className = 'fas fa-times tab-close';
             closeIcon.onclick = (e) => closeTab(e, id);
-            
             tab.appendChild(closeIcon);
             tab.onclick = () => activeTab(id);
             tabsBar.appendChild(tab);
-            
-            // 创建内容面板
+
             const panel = document.createElement('div');
             panel.className = 'tab-panel';
             panel.id = id;
-            
+
             panel.innerHTML = `
                 <div class="split-container">
                     <button class="swap-btn" onclick="swapFrames(this)">切换</button>
@@ -378,10 +353,7 @@
                     <iframe src="${rightUrl}"></iframe>
                 </div>
             `;
-            
             content.appendChild(panel);
-            
-            // 激活新标签
             activeTab(id);
         }
 
@@ -389,15 +361,13 @@
             e.stopPropagation();
             const tab = tabsBar.querySelector(`[data-id="${id}"]`);
             const panel = document.getElementById(id);
-            
             if (!tab || !panel) return;
-            
+
             tab.remove();
             panel.remove();
-            
-            // 无标签时回到主页
+
             if (!tabsBar.children.length) {
-                goto('home', '主页', 'single', 'https://www.kdocs.cn/wo/sl/v14128NB');
+                goto('home');
             } else {
                 activeTab(tabsBar.children[0].dataset.id);
             }
@@ -406,7 +376,6 @@
         function swapFrames(btn) {
             const container = btn.parentElement;
             const frames = container.querySelectorAll('iframe');
-            
             if (frames.length === 2) {
                 const tempSrc = frames[0].src;
                 frames[0].src = frames[1].src;
@@ -417,8 +386,8 @@
         // 初始化
         window.onload = function() {
             document.getElementById('dataReg').classList.add('active');
-            
-            // 确保主页正确显示
+            // 初始化主页 iframe
+            document.querySelector('#home iframe').src = PAGE_CONFIG.home.url;
             document.getElementById('home').style.display = 'flex';
         };
     </script>

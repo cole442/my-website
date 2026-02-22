@@ -4,18 +4,19 @@ const PAGE_CONFIG = {
     home: {
         title: '主页',
         type: 'single',
-        url: 'https://www.kdocs.cn/wo/sl/v11tAJZk'
+         url: 'home.html'
     },
     wz: {
-        title: '无纸化收单',
+        title: '收单登记(本场)',
         type: 'single',
-        url: 'https://kdocs.cn/l/ckee7mJnjuIW'
+        url: 'https://www.kdocs.cn/l/ckee7mJnjuIW',
+        moveOffset: 85
     },
-    sd: {
-        title: '收单登记',
-        type: 'split',
-        url1: 'https://www.kdocs.cn/wo/sl/v14dSwGd',
-        url2: 'https://www.kdocs.cn/l/cqOBfg5woE11?from=docs&embed=1&hide=1'
+    ad: {
+        title: '收单登记(A岛)',
+        type: 'single',
+        url: 'https://www.kdocs.cn/l/chOikqBK4pyB',
+        moveOffset: 85
     },
     dz: {
         title: '打单做账登记',
@@ -24,15 +25,9 @@ const PAGE_CONFIG = {
         noMove: true  // 特殊页面，不应用 -35px 上移
     },
     yc: {
-        title: '异常单登记',
+        title: '异常信息登记',
         type: 'single',
         url: 'https://www.kdocs.cn/wo/sl/v11xPZ9y',
-        noMove: true
-    },
-    jd: {
-        title: '交单登记',
-        type: 'single',
-        url: 'https://www.kdocs.cn/wo/sl/v14aBsjE',
         noMove: true
     },
     sdData: {
@@ -56,24 +51,24 @@ const PAGE_CONFIG = {
         url: 'https://www.kdocs.cn/wo/sl/v1NM4FF'
     },
     sdQuery: {
-        title: '收单查询',
+        title: '收单状态查询',
         type: 'single',
-        url: 'https://www.kdocs.cn/etapps/query/q/pTa0EFIg'
+        url: 'https://www.kdocs.cn/etapps/query/q/ZzgCrV5f'
     },
     ycQuery: {
-        title: '异常单展示',
+        title: '异常信息展示',
         type: 'single',
         url: 'https://www.kdocs.cn/wo/sl/v11MkQ2e'
     },
     slQuery: {
         title: '收单历史数据',
         type: 'single',
-        url: 'https://www.kdocs.cn/etapps/query/q/CkE29Uf3'
+        url: 'https://www.kdocs.cn/etapps/query/q/7D7YiHpo'
     },
     dlQuery: {
         title: '代理历史数据',
         type: 'single',
-        url: 'https://www.kdocs.cn/etapps/query/q/IYVp2QqW'
+        url: 'https://www.kdocs.cn/etapps/query/q/AacdusKo'
     },
     stat: {
         title: '数据统计',
@@ -83,21 +78,12 @@ const PAGE_CONFIG = {
     viz: {
         title: '数据可视化',
         type: 'single',
-        url: ''  // 留空或后续补充
-    },
-    bind: {
-        title: '员工号绑定',
-        type: 'single',
-        url: 'https://web.wps.cn/wo/sl/v31Bmr3z?app_id=5IXSM8MjQrYBI9tXidNxyq'
-    },
-    switch: {
-        title: '切换账号',
-        type: 'single',
-        url: 'https://account.wps.cn/?cb=https%3A%2F%2Fdocs.wps.cn%2Fcrossdomain.html%3Faction%3DwebLoginSuccess%26tcb%3Dhttps%253A%252F%252Fwww.kdocs.cn%252Flatest&autologin=false'
+        url: 'https://www.kdocs.cn/wo/sl/v11tAJZk'  // 留空或后续补充
     },
     help: {
         title: '系统说明',
         type: 'single',
-        url: 'https://kdocs.cn/l/cdeCQXZdMEnf'
+        url: 'https://www.kdocs.cn/l/cp5INwdtAXhG',
+        moveOffset: 85
     }
 };

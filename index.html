@@ -6,6 +6,7 @@
     <title>智汇单据系统</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="page-config.js"></script>
+    <script src="notifications.js"></script>
     <style>
         :root{
             --primary: #4f46e5;
@@ -718,7 +719,119 @@
             :root { --sidebar-width: 240px; }
             .menu-card:hover { transform: translateY(-12px) scale(1.01); }
         }
-    </style>
+    
+        /* 滚动通知栏样式 */
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .header-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            white-space: nowrap;
+        }
+
+        .notification-wrapper {
+            flex: 1;
+            margin-left: 20px;
+            height: 36px;
+            background: linear-gradient(90deg, #fef3c7, #fde68a);
+            border-radius: 18px;
+            overflow: hidden;
+            position: relative;
+            display: none;  /* 默认隐藏，有通知时JS显示 */
+            align-items: center;
+            border: 1px solid #f59e0b;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+            opacity: 0;
+            transform: translateX(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .notification-wrapper.visible {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+            animation: slideIn 0.4s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .notification-wrapper.hidden {
+            opacity: 0;
+            transform: translateX(20px);
+            pointer-events: none;
+        }
+
+        .notification-wrapper::before {
+            content: '📢';
+            position: absolute;
+            left: 12px;
+            z-index: 10;
+            font-size: 16px;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+        }
+
+        .notification-marquee {
+            white-space: nowrap;
+            overflow: hidden;
+            width: 100%;
+            margin-left: 40px;
+        }
+
+        .notification-content {
+            display: inline-block;
+            padding-left: 100%;
+            animation: scroll-left var(--scroll-duration, 20s) linear infinite;
+            color: #92400e;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .notification-content:hover {
+            animation-play-state: paused;
+        }
+
+        .notification-item {
+            display: inline-block;
+            margin-right: 50px;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 12px;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        @keyframes scroll-left {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-100%); }
+        }
+
+        /* 添加闪烁效果的通知点 */
+        .notification-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1.5s ease-in-out infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+</style>
+<base target="_blank">
 <base target="_blank">
 </head>
 <body>
@@ -794,7 +907,22 @@
     </div>
 
     <div class="main-content">
-        <div class="header" id="pageHeader">主页</div>
+        <div class="header" id="pageHeader">
+            <div class="header-content">
+                <span class="header-title">主页</span>
+                <div class="notification-wrapper">
+                    <div class="notification-marquee">
+                        <div class="notification-content" id="notificationContent">
+                            <span class="notification-item"><span class="notification-dot"></span>欢迎使用智汇单据系统，请规范操作数据</span>
+                            <span class="notification-item"><span class="notification-dot"></span>今日收单量已突破1000单，继续保持！</span>
+                            <span class="notification-item"><span class="notification-dot"></span>系统将于今晚22:00进行例行维护</span>
+                            <span class="notification-item"><span class="notification-dot"></span>新功能"数据可视化"已上线，欢迎使用</span>
+                            <span class="notification-item"><span class="notification-dot"></span>请定期备份重要数据，确保信息安全</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="tabs" id="tabs"></div>
         <div class="content" id="content">
             <div class="tab-panel active" id="home">
@@ -1022,7 +1150,10 @@
                 }
             });
             const tabText = document.querySelector(`.tab[data-id="${id}"]`).textContent.replace(/[\n\r]+|[\s]{2,}/g, ' ').trim();
-            pageHeader.textContent = tabText;
+            const headerTitle = pageHeader.querySelector('.header-title');
+            if (headerTitle) {
+                headerTitle.textContent = tabText;
+            }
             toggleClockVisibility();
         }
 
@@ -1108,6 +1239,128 @@
             animateCards();
             toggleClockVisibility();
         });
-    </script>
+    
+        // 通知管理系统 - 从 notifications.js 加载配置
+        const NotificationManager = {
+            // 从外部配置文件读取通知列表
+            get notifications() {
+                const items = (typeof NOTIFICATIONS_CONFIG !== 'undefined') 
+                    ? NOTIFICATIONS_CONFIG.items 
+                    : [];
+                // 过滤掉空文本的通知
+                return items.filter(n => n.text && n.text.trim() !== '');
+            },
+
+            // 检查是否有有效通知
+            hasNotifications() {
+                return this.notifications.length > 0;
+            },
+
+            // 显示/隐藏通知栏
+            toggleVisibility(show) {
+                const wrapper = document.querySelector('.notification-wrapper');
+                if (!wrapper) return;
+
+                if (show) {
+                    wrapper.classList.remove('hidden');
+                    wrapper.classList.add('visible');
+                } else {
+                    wrapper.classList.remove('visible');
+                    wrapper.classList.add('hidden');
+                    // 动画结束后彻底隐藏
+                    setTimeout(() => {
+                        if (!wrapper.classList.contains('visible')) {
+                            wrapper.style.display = 'none';
+                        }
+                    }, 300);
+                }
+            },
+
+            // 获取配置
+            get config() {
+                return (typeof NOTIFICATIONS_CONFIG !== 'undefined') 
+                    ? NOTIFICATIONS_CONFIG 
+                    : { priorityColors: { urgent: '#ef4444', high: '#f59e0b', normal: '#10b981' }, icon: '📢' };
+            },
+
+            addNotification(text, priority = "normal") {
+                this.notifications.push({ text, priority, time: new Date() });
+                this.render();
+            },
+
+            render() {
+                const container = document.getElementById('notificationContent');
+                const wrapper = document.querySelector('.notification-wrapper');
+                if (!container || !wrapper) return;
+
+                // 没有通知时隐藏
+                if (!this.hasNotifications()) {
+                    this.toggleVisibility(false);
+                    container.innerHTML = '';
+                    return;
+                }
+
+                // 有通知时显示
+                this.toggleVisibility(true);
+
+                const colors = this.config.priorityColors || { urgent: '#ef4444', high: '#f59e0b', normal: '#10b981' };
+
+                container.innerHTML = this.notifications.map(n => {
+                    const dotColor = colors[n.priority] || colors.normal;
+                    return `<span class="notification-item">
+                        <span class="notification-dot" style="background:${dotColor}"></span>${n.text}
+                    </span>`;
+                }).join('');
+            },
+
+            // 动态添加通知并显示
+            addNotification(text, priority = "normal") {
+                if (!text || text.trim() === '') return;
+
+                this.notifications.push({ text, priority, time: new Date() });
+                this.render();
+            },
+
+            // 清空所有通知
+            clearAll() {
+                if (typeof NOTIFICATIONS_CONFIG !== 'undefined') {
+                    NOTIFICATIONS_CONFIG.items = [];
+                }
+                this.render();
+            },
+
+            // 模拟接收实时通知
+            setScrollSpeed() {
+                const speed = this.config.scrollSpeed || 20;
+                document.documentElement.style.setProperty('--scroll-duration', speed + 's');
+            },
+
+            simulateRealtimeUpdate() {
+                setInterval(() => {
+                    const messages = [
+                        "新收单到达，运单号：78483071321",
+                        "A岛收单点排队人数较多，请分流",
+                        "系统运行正常，响应时间：23ms",
+                        "数据同步完成，共同步156条记录"
+                    ];
+                    const randomMsg = messages[Math.floor(Math.random() * messages.length)];
+                    // 不自动添加，只是准备功能
+                }, 30000);
+            }
+        };
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            NotificationManager.setScrollSpeed();
+            NotificationManager.render(); // 自动判断显示/隐藏
+            NotificationManager.simulateRealtimeUpdate();
+
+            // 监听配置变化（如果支持）
+            if (typeof NOTIFICATIONS_CONFIG !== 'undefined') {
+                // 可以通过修改 NOTIFICATIONS_CONFIG.items 后调用 render() 来更新
+                console.log('通知系统已加载，当前通知数：', NotificationManager.notifications.length);
+            }
+        });
+</script>
 </body>
 </html>

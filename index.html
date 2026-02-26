@@ -69,14 +69,21 @@
             transition: var(--transition);
             z-index: 100;
             overflow-y: auto;
-            overflow-x: hidden;
+            overflow-x: visible; /* 改为 visible 允许子菜单溢出 */
             left: 0;
             box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
-            display: none;
+            display: none; /* 默认隐藏 */
         }
 
-        .sidebar.visible { display: block; }
-        .sidebar.collapsed{ width: var(--sidebar-collapsed); }
+        .sidebar.visible { 
+            display: block; 
+        }
+        
+        /* 折叠状态下允许内容溢出，确保子菜单可以显示在外部 */
+        .sidebar.collapsed{ 
+            width: var(--sidebar-collapsed); 
+            overflow: visible;
+        }
 
         .sidebar-header{
             display: flex;
@@ -132,7 +139,10 @@
         }
 
         .sidebar-menu{ padding: 16px 12px; }
-        .menu-item{ margin-bottom: 4px; }
+        .menu-item{ 
+            margin-bottom: 4px; 
+            position: relative;
+        }
 
         .menu-title{
             padding: 12px 16px;
@@ -233,9 +243,9 @@
             transform: translateY(-50%) scale(1.3);
         }
 
+        /* 折叠状态下的样式 */
         .sidebar.collapsed .logo h2,
         .sidebar.collapsed .menu-title span,
-        .sidebar.collapsed .submenu,
         .sidebar.collapsed .fa-chevron-down { display: none; }
 
         .sidebar.collapsed .menu-title{
@@ -250,6 +260,71 @@
             transform: none !important;
         }
 
+        /* 折叠状态下的悬浮子菜单 - 关键修复 */
+        .sidebar.collapsed .menu-item {
+            position: relative;
+        }
+
+        /* 默认隐藏子菜单 */
+        .sidebar.collapsed .submenu {
+            display: none;
+            position: absolute;
+            left: 100%;
+            top: 0;
+            width: 200px;
+            margin: 0;
+            background: linear-gradient(180deg, #312e81 0%, #1e1b4b 100%);
+            border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+            box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            padding: 8px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-left: none;
+        }
+
+        /* 鼠标悬停时显示子菜单 */
+        .sidebar.collapsed .menu-item:hover > .submenu {
+            display: block;
+            animation: slideRight 0.2s ease;
+        }
+
+        @keyframes slideRight {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .sidebar.collapsed .submenu-item {
+            padding: 12px 16px;
+            white-space: nowrap;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .sidebar.collapsed .submenu-item::before {
+            display: none;
+        }
+
+        .sidebar.collapsed .submenu-item:hover {
+            padding-left: 16px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 添加悬浮提示箭头 */
+        .sidebar.collapsed .menu-item:hover > .menu-title::after {
+            content: '';
+            position: absolute;
+            right: -8px;
+            top: 50%;
+            transform: translateY(-50%);
+            border: 8px solid transparent;
+            border-left-color: #312e81;
+            z-index: 1001;
+        }
+
+        /* 第一个菜单项（主页）无子菜单，不显示箭头 */
+        .sidebar.collapsed .menu-item:first-child:hover > .menu-title::after {
+            display: none;
+        }
+
         .main-content{
             flex: 1;
             width: 100%;
@@ -261,12 +336,13 @@
             background: #f8fafc;
         }
 
+        /* 关键修复：只有侧边栏可见时才应用 margin */
         .sidebar.visible + .main-content{
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
         }
 
-        .sidebar.collapsed + .main-content{
+        .sidebar.visible.collapsed + .main-content{
             margin-left: var(--sidebar-collapsed);
             width: calc(100% - var(--sidebar-collapsed));
         }
@@ -718,6 +794,15 @@
             }
             :root { --sidebar-width: 240px; }
             .menu-card:hover { transform: translateY(-12px) scale(1.01); }
+            
+            /* 移动端折叠菜单优化 */
+            .sidebar.collapsed .submenu {
+                position: static;
+                width: 100%;
+                left: 0;
+                border-radius: var(--radius-sm);
+                margin: 4px 0;
+            }
         }
     
         /* 滚动通知栏样式 */
@@ -913,11 +998,6 @@
                 <div class="notification-wrapper">
                     <div class="notification-marquee">
                         <div class="notification-content" id="notificationContent">
-                            <span class="notification-item"><span class="notification-dot"></span>欢迎使用智汇单据系统，请规范操作数据</span>
-                            <span class="notification-item"><span class="notification-dot"></span>今日收单量已突破1000单，继续保持！</span>
-                            <span class="notification-item"><span class="notification-dot"></span>系统将于今晚22:00进行例行维护</span>
-                            <span class="notification-item"><span class="notification-dot"></span>新功能"数据可视化"已上线，欢迎使用</span>
-                            <span class="notification-item"><span class="notification-dot"></span>请定期备份重要数据，确保信息安全</span>
                         </div>
                     </div>
                 </div>
@@ -1058,16 +1138,15 @@
 
         toggleBtn.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
-            if (sidebar.classList.contains('collapsed')) {
-                document.querySelector('.main-content').style.marginLeft = '70px';
-                document.querySelector('.main-content').style.width = 'calc(100% - 70px)';
-            } else {
-                document.querySelector('.main-content').style.marginLeft = '260px';
-                document.querySelector('.main-content').style.width = 'calc(100% - 260px)';
-            }
+            // 移除直接操作 style，改用 CSS 类控制
         });
 
         function toggleSubmenu(id) {
+            // 如果是折叠状态，不执行切换（由CSS hover处理）
+            if (sidebar.classList.contains('collapsed')) {
+                return;
+            }
+            
             const target = document.getElementById(id);
             const isActive = target.classList.contains('active');
 
@@ -1095,15 +1174,26 @@
 
         function goto(id) {
             if (id === 'home') {
+                // 关键修复：移除 visible 类，添加隐藏状态
                 sidebar.classList.remove('visible');
-                document.querySelector('.main-content').style.marginLeft = '0';
-                document.querySelector('.main-content').style.width = '100%';
+                sidebar.classList.remove('collapsed'); // 重置折叠状态
+                
+                // 重置所有子菜单状态
+                document.querySelectorAll('.submenu').forEach(menu => {
+                    menu.classList.remove('active');
+                });
+                document.querySelectorAll('.fa-chevron-down').forEach(arrow => {
+                    arrow.style.transform = 'rotate(0deg)';
+                });
 
+                // 清理标签页
                 tabsBar.style.display = 'none';
                 pageHeader.style.display = 'none';
                 while (tabsBar.firstChild) tabsBar.removeChild(tabsBar.firstChild);
                 const panels = content.querySelectorAll('.tab-panel:not(#home)');
                 panels.forEach(panel => panel.remove());
+                
+                // 显示主页
                 [...content.children].forEach(panel => {
                     panel.style.display = (panel.id === 'home') ? 'flex' : 'none';
                     panel.classList.toggle('active', panel.id === 'home');
@@ -1126,10 +1216,10 @@
                 return;
             }
 
+            // 显示侧边栏（恢复之前的折叠状态或默认展开）
             sidebar.classList.add('visible');
-            document.querySelector('.main-content').style.marginLeft = '260px';
-            document.querySelector('.main-content').style.width = 'calc(100% - 260px)';
-
+            // 不自动移除 collapsed 类，保持用户之前的折叠偏好
+            
             tabsBar.style.display = 'flex';
             pageHeader.style.display = 'flex';
             addSingleTab(id, config.title, config.url);
@@ -1230,11 +1320,16 @@
         }
 
         window.addEventListener('load', () => {
-            document.getElementById('dataReg').classList.add('active');
+            // 初始化时确保数据登记菜单是展开的（仅在非折叠状态下）
+            const dataReg = document.getElementById('dataReg');
+            if (dataReg && !sidebar.classList.contains('collapsed')) {
+                dataReg.classList.add('active');
+            }
+            
+            // 确保侧边栏初始状态正确
             sidebar.classList.remove('visible');
-            document.querySelector('.main-content').style.marginLeft = '0';
-            document.querySelector('.main-content').style.width = '100%';
-
+            sidebar.classList.remove('collapsed');
+            
             createParticles();
             animateCards();
             toggleClockVisibility();

@@ -22,7 +22,7 @@ const NOTIFICATIONS_CONFIG = {
             priority: "urgent"   // 紧急：红色
         },
         { 
-            text: '', 
+            text: "南航货单需2、4联的站点为：DAC、SGN、DXB、PNH、CGK。", 
             priority: "normal"
         },
         { 
@@ -48,4 +48,5 @@ const NOTIFICATIONS_CONFIG = {
 // 导出配置（如果在模块环境中使用）
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = NOTIFICATIONS_CONFIG;
+
 }

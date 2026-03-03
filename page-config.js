@@ -38,7 +38,7 @@ const PAGE_CONFIG = {
     agent: {
         title: '代理数据',
         type: 'single',
-        url: 'https://www.kdocs.cn/wo/sl/v1ydmSr'
+        url: 'https://www.kdocs.cn/wo/sl/v1P7jG9'
     },
     dzData: {
         title: '打单做账数据',
@@ -87,4 +87,5 @@ const PAGE_CONFIG = {
         moveOffset: 85
     }
 };
+
 

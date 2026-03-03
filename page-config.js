@@ -53,7 +53,7 @@ const PAGE_CONFIG = {
     sdQuery: {
         title: '收单状态查询',
         type: 'single',
-        url: 'https://www.kdocs.cn/etapps/query/q/pTa0EFIg'
+        url: 'https://www.kdocs.cn/etapps/query/q/ch1u1hv4'
     },
     ycQuery: {
         title: '异常信息展示',
@@ -87,5 +87,6 @@ const PAGE_CONFIG = {
         moveOffset: 85
     }
 };
+
 
 

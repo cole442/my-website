@@ -10,11 +10,11 @@ const NOTIFICATIONS_CONFIG = {
     // 通知列表 - 空数组时通知栏隐藏
     items: [
         { 
-            text: "根据大韩通知：大韩航空计划实施普货提单无纸化进程。自3月2日起，电子单EAW不需要A4纸质提单，EAP只需随机业务袋即可，其他所需文件保持不变。", 
+            text: "收单登记“收单人”显示红色，是代理没有扫码登记，遇到这种情况先不收单，让代理扫码登记完再收。", 
             priority: "normal"  // 普通：绿色
         },
         { 
-            text: "例外情况：危险品，活体，骨灰灵柩，温控箱药品等特货仍需要纸质提单！", 
+            text: "", 
             priority: "high"     // 重要：橙色
         },
         { 
@@ -50,3 +50,4 @@ if (typeof module !== 'undefined' && module.exports) {
     module.exports = NOTIFICATIONS_CONFIG;
 
 }
+
